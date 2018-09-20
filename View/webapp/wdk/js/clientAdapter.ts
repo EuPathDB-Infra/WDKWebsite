@@ -4,6 +4,7 @@ import { get } from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router } from 'react-router';
+import { Provider } from 'react-redux';
 
 import {
   Controllers as WdkControllers,
@@ -90,15 +91,16 @@ wdk.namespace('wdk', ns => {
         onPropsChanged(props: any) {
           ReactDOM.render(
             React.createElement(
-              WdkControllers.ErrorBoundary,
-              {
-                dispatchAction: context.dispatchAction,
-                renderError: () => 'There was an error!'
-              },
+              Provider,
+              { store: context.store }, 
               React.createElement(
-                Router,
-                { history: context.history },
-                React.createElement(ViewController as any, { ...props, ...context, ref: viewControllerRef })
+                WdkControllers.ErrorBoundary,
+                { renderError: () => 'There was an error!' },
+                React.createElement(
+                  Router,
+                  { history: context.history },
+                  React.createElement(ViewController as any, { ...props, ...context, ref: viewControllerRef })
+                )
               )
             ), el)
         },
