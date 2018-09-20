@@ -13,7 +13,7 @@
 
 <c:choose>
 <c:when test="${displayValue == null || fn:length(displayValue) == 0}">
-  <span style="color:gray;">N/A</span>
+  <span style="color:gray;">NA</span>
 </c:when>
 <c:otherwise>
   ${displayValue}
