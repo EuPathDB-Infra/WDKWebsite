@@ -4,12 +4,12 @@
   
   <parent>
     <groupId>org.gusdb</groupId>
-    <artifactId>wdk</artifactId>
+    <artifactId>wdk-website</artifactId>
     <version>1.0.0</version>
   </parent>
   
   <name>Web Development Kit - View</name>
-  <artifactId>wdk-view</artifactId>
+  <artifactId>wdk-website-view</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
