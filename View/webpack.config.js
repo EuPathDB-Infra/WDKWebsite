@@ -53,6 +53,7 @@ var exposeModules = [
   { module: 'react-router',      expose: 'ReactRouter' },
   { module: 'redux',             expose: 'Redux' },
   { module: 'redux-observable',  expose: 'ReduxObservable' },
+  { module: 'reselect',       expose: 'Reselect' },
   { module: 'rxjs',              expose: 'Rx' },
   { module: 'rxjs/operators',    expose: 'RxOperators' },
 ];
