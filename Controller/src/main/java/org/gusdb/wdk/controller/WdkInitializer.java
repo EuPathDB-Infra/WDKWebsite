@@ -13,6 +13,8 @@ import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
+import com.github.fge.msgsimple.provider.LoadingMessageSourceProvider;
+
 public class WdkInitializer {
 
   private static final Logger LOG = Logger.getLogger(WdkInitializer.class);
@@ -76,6 +78,9 @@ public class WdkInitializer {
         wdkModel.close();
         LOG.info("WDK resource release complete.");
       }
+
+      // WDK service schema validation code dependency starts hidden threadpool; shut down
+      LoadingMessageSourceProvider.shutDownThreadPools();
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);

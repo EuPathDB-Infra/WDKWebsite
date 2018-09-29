@@ -29,6 +29,12 @@
       <artifactId>json</artifactId>
     </dependency>
 
+    <!-- NOTE: msg-simple must be explicitly depended on for json-schema-validator -->
+    <dependency>
+      <groupId>com.github.fge</groupId>
+      <artifactId>msg-simple</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
