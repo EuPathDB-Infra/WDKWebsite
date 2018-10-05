@@ -12,7 +12,14 @@ import javax.servlet.http.HttpSession;
 
 import org.gusdb.wdk.controller.WdkInitializer;
 import org.gusdb.wdk.model.Utilities;
+import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkRuntimeException;
+import org.gusdb.wdk.model.WdkUserException;
+import org.gusdb.wdk.model.answer.factory.AnswerValueFactory;
+import org.gusdb.wdk.model.answer.spec.AnswerSpec;
+import org.gusdb.wdk.model.answer.spec.QueryInstanceSpec;
+import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
+import org.gusdb.wdk.model.jspwrap.QuestionBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
@@ -57,5 +64,16 @@ public class ActionUtility {
       for (Entry<String, Object> modelValue : model.entrySet()) {
         request.setAttribute(modelValue.getKey(), modelValue.getValue());
       }
+    }
+
+
+    public static AnswerValueBean makeAnswerValue(UserBean user, QuestionBean question, Map<String, String> params)
+        throws WdkModelException, WdkUserException {
+      return new AnswerValueBean(
+        AnswerValueFactory.makeAnswer(user.getUser(),
+          AnswerSpec.builder(question.getQuestion().getWdkModel())
+          .setQuestionName(question.getFullName())
+          .setQueryInstanceSpec(QueryInstanceSpec.builder().putAll(params))
+          .buildRunnable()));
     }
 }
