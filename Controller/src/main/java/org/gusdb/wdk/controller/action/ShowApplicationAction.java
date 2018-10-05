@@ -15,9 +15,7 @@ import org.apache.struts.action.ActionMapping;
 import org.gusdb.fgputil.FormatUtil;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
-import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.json.JSONObject;
 
 /**
@@ -35,14 +33,7 @@ public class ShowApplicationAction extends ShowSummaryAction {
         logger.debug("Entering ShowApplicationAction...");
 
         try {
-            // get user, or create one, if not exist
-          WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
-          UserBean wdkUser = ActionUtility.getUser(request);
-            if (wdkUser == null) {
-                wdkUser = wdkModel.getUserFactory().getGuestUser();
-                request.getSession().setAttribute(Utilities.WDK_USER_KEY, wdkUser);
-            }
-
+            UserBean wdkUser = ActionUtility.getUser(request);
             String newStratKey = CConstants.WDK_NEW_STRATEGY_KEY;
             HttpSession session = request.getSession();
             if (session.getAttribute(newStratKey) != null) {
@@ -55,19 +46,13 @@ public class ShowApplicationAction extends ShowSummaryAction {
             ShowStrategyAction.outputState(wdkUser, jsMessage);
             JSONObject jsState = jsMessage.getJSONObject("state");
             String activeStrategies = jsState.toString();
-            request.setAttribute(CConstants.WDK_STRATEGY_COLLECTION_KEY,
-                    activeStrategies);
+            request.setAttribute(CConstants.WDK_STRATEGY_COLLECTION_KEY, activeStrategies);
 
-            // get the tab info, if present
-//            String tab = request.getParameter(PARAM_TAB);
-//            if (tab != null && tab.length() > 0) {
-//
-//            }
 
-	    String strategyViewFile = CConstants.WDK_CUSTOM_VIEW_DIR
-		+ File.separator + CConstants.WDK_PAGES_DIR
-		//+ File.separator + CConstants.WDK_STRATEGY_DIR
-		+ File.separator + CConstants.WDK_STRATEGY_PAGE;
+            String strategyViewFile = CConstants.WDK_CUSTOM_VIEW_DIR
+                + File.separator + CConstants.WDK_PAGES_DIR
+                //+ File.separator + CConstants.WDK_STRATEGY_DIR
+                + File.separator + CConstants.WDK_STRATEGY_PAGE;
 
             ActionForward forward = new ActionForward(strategyViewFile);
 
@@ -79,37 +64,37 @@ public class ShowApplicationAction extends ShowSummaryAction {
     }
 
     protected static void setWdkTabStateCookie(HttpServletRequest request, HttpServletResponse response) throws Exception {
-	    String cookieValue = null;
-	    Cookie[] cookies = request.getCookies();
-        if (cookies == null) return;
-	    for (Cookie cookie : cookies) {
-		if (cookie.getName().compareTo(CConstants.WDK_TAB_STATE_COOKIE) == 0) {
-		    cookieValue = URLDecoder.decode(cookie.getValue(), "utf-8");
-		    break;
-		}
-	    }
-	    if (cookieValue == null || cookieValue.trim().length() == 0) {
-		cookieValue = "application=strategy_results";
-	    }
-	    else {
-		String[] tabs = cookieValue.split("&");
-		StringBuilder newValue = new StringBuilder();
-		for (String tab : tabs) {
-		    if (tab.startsWith("application=")) {
-			tab = "application=strategy_results";
-		    }
-		    newValue.append("&" + tab);
-		}
-		cookieValue = newValue.toString();
-	    }
-            Cookie tabCookie = new Cookie(CConstants.WDK_TAB_STATE_COOKIE,
-                FormatUtil.urlEncodeUtf8(cookieValue));
-            // make sure it's only a session cookie, not persistent
-            tabCookie.setMaxAge(-1);
-            // make sure the cookie is good for whole site, not just webapp
-            tabCookie.setPath("/");
+      String cookieValue = null;
+      Cookie[] cookies = request.getCookies();
+      if (cookies == null) return;
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().compareTo(CConstants.WDK_TAB_STATE_COOKIE) == 0) {
+          cookieValue = URLDecoder.decode(cookie.getValue(), "utf-8");
+          break;
+        }
+      }
+      if (cookieValue == null || cookieValue.trim().length() == 0) {
+        cookieValue = "application=strategy_results";
+      }
+      else {
+        String[] tabs = cookieValue.split("&");
+        StringBuilder newValue = new StringBuilder();
+        for (String tab : tabs) {
+          if (tab.startsWith("application=")) {
+            tab = "application=strategy_results";
+          }
+          newValue.append("&" + tab);
+        }
+        cookieValue = newValue.toString();
+      }
+      Cookie tabCookie = new Cookie(CConstants.WDK_TAB_STATE_COOKIE,
+          FormatUtil.urlEncodeUtf8(cookieValue));
+      // make sure it's only a session cookie, not persistent
+      tabCookie.setMaxAge(-1);
+      // make sure the cookie is good for whole site, not just webapp
+      tabCookie.setPath("/");
 
-            response.addCookie(tabCookie);
+      response.addCookie(tabCookie);
     }
 
     protected static void setStrategyPanelVisibilityCookie(HttpServletResponse response, boolean isVisible) {
