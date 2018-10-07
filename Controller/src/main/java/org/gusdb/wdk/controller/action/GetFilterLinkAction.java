@@ -15,13 +15,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
-import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.jspwrap.AnswerFilterInstanceBean;
 import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
 import org.gusdb.wdk.model.jspwrap.StepBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
 /**
  * @author Charles
@@ -36,12 +34,7 @@ public class GetFilterLinkAction extends Action {
             throws Exception {
         logger.debug("Entering GetFilterLinkAction...");
 
-        WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
         UserBean wdkUser = ActionUtility.getUser(request);
-        if (wdkUser == null) {
-            wdkUser = wdkModel.getUserFactory().getGuestUser();
-            request.getSession().setAttribute(Utilities.WDK_USER_KEY, wdkUser);
-        }
 
         // get the history id
         String displayId = request.getParameter(CConstants.WDK_STEP_ID_KEY);

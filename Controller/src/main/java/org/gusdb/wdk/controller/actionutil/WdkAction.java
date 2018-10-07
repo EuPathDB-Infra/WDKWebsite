@@ -397,10 +397,9 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
    */
   protected UserBean getCurrentUser() throws WdkModelException {
     UserBean user = ActionUtility.getUser(_request);
-    // if guest is null, means the session is timed out; create the guest again
+    // if guest is null, then filter is not configured properly; throw exception
     if (user == null) {
-      user = _wdkModel.getUserFactory().getGuestUser();
-      setCurrentUser(user);
+      throw new WdkModelException("WdkAction subclass " + getClass().getName() + " reached without a user in session.");
     }
     return user;
   }
