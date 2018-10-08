@@ -17,7 +17,7 @@ export * from 'wdk-client';
 
 const { Seq } = IterableUtils;
 
-type ViewControllerResolver = (id: string) => Promise<WdkControllers.AbstractViewController> | WdkControllers.AbstractViewController;
+type ViewControllerResolver = (id: string) => Promise<WdkControllers.ViewController> | WdkControllers.ViewController;
 
 declare const wdk: {
   namespace(nsString: string, nsFactory: (ns: object) => any): void;

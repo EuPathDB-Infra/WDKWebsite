@@ -40,8 +40,6 @@ var polyfills = [
 
 // expose module exports as global vars
 var exposeModules = [
-  { module: 'flux',              expose: 'Flux' },
-  { module: 'flux/utils',        expose: 'FluxUtils' },
   { module: 'history',           expose: 'HistoryJS' },
   { module: 'lodash',            expose: '_' },
   { module: 'lodash/fp',         expose: '_fp' },
