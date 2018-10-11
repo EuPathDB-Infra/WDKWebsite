@@ -21,7 +21,7 @@ wdk.namespace("window.wdk.user", function(ns, $) {
 
   ns.login = function(action, destination = window.location.href) {
     getContext().then(context => {
-      context.dispatchAction(action
+      context.store.dispatch(action
         ? UserActionCreators.showLoginWarning(action, destination)
         : UserActionCreators.showLoginForm(destination));
     });
@@ -29,7 +29,7 @@ wdk.namespace("window.wdk.user", function(ns, $) {
 
   ns.logout = function() {
     getContext().then(context => {
-      context.dispatchAction(UserActionCreators.showLogoutWarning());
+      context.store.dispatch(UserActionCreators.showLogoutWarning());
     });
   };
 
