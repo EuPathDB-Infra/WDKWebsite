@@ -72,7 +72,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       if (strategy.getIsSaved()) {
         Map<Long, Long> stepIdMap = new HashMap<>();
         strategy = new StrategyBean(wdkUser, wdkModel.getModel().getStepFactory().copyStrategy(
-            strategy.getStrategy(), stepIdMap, strategy.getName()));
+            wdkUser.getUser(), strategy.getStrategy(), stepIdMap, strategy.getName()));
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
       }
