@@ -40,18 +40,20 @@ var polyfills = [
 
 // expose module exports as global vars
 var exposeModules = [
-  { module: 'flux',           expose: 'Flux' },
-  { module: 'flux/utils',     expose: 'FluxUtils' },
-  { module: 'history',        expose: 'HistoryJS' },
-  { module: 'lodash',         expose: '_' },
-  { module: 'natural-sort',   expose: 'NaturalSort' },
-  { module: 'prop-types',     expose: 'ReactPropTypes' },
-  { module: 'react',          expose: 'React' },
-  { module: 'react-dom',      expose: 'ReactDOM' },
-  { module: 'react-router',   expose: 'ReactRouter' },
+  { module: 'history',           expose: 'HistoryJS' },
+  { module: 'lodash',            expose: '_' },
+  { module: 'lodash/fp',         expose: '_fp' },
+  { module: 'natural-sort',      expose: 'NaturalSort' },
+  { module: 'prop-types',        expose: 'ReactPropTypes' },
+  { module: 'react',             expose: 'React' },
+  { module: 'react-dom',         expose: 'ReactDOM' },
+  { module: 'react-redux',       expose: 'ReactRedux' },
+  { module: 'react-router',      expose: 'ReactRouter' },
+  { module: 'redux',             expose: 'Redux' },
+  { module: 'redux-observable',  expose: 'ReduxObservable' },
   { module: 'reselect',       expose: 'Reselect' },
-  { module: 'rxjs',           expose: 'Rx' },
-  { module: 'rxjs/operators', expose: 'RxOperators' },
+  { module: 'rxjs',              expose: 'Rx' },
+  { module: 'rxjs/operators',    expose: 'RxOperators' },
 ];
 
 

@@ -55,7 +55,7 @@ public class RemoveFilterAction extends Action {
       StrategyBean strategy = new StrategyBean(user, StepUtilities.getStrategy(user.getUser(), strategyId));
       if (strategy.getIsSaved()) {
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = new StrategyBean(user, stepFactory.copyStrategy(strategy.getStrategy(), stepIdMap, strategy.getName()));
+        strategy = new StrategyBean(user, stepFactory.copyStrategy(user.getUser(), strategy.getStrategy(), stepIdMap, strategy.getName()));
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
       }

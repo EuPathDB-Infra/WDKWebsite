@@ -46,6 +46,7 @@ public class ProcessBooleanStageHandler implements StageHandler {
     UserBean user = ActionUtility.getUser(request);
     WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
 
+
     String strStratId = request.getParameter(PARAM_STRATEGY);
     if (strStratId == null || strStratId.isEmpty())
       throw new WdkUserException("Required " + PARAM_STRATEGY + " param is missing.");
