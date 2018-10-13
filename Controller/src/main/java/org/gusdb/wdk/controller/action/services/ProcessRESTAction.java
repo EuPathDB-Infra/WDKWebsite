@@ -43,8 +43,8 @@ import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.query.param.AbstractEnumParam;
 import org.gusdb.wdk.model.query.param.EnumParamTermNode;
 import org.gusdb.wdk.model.report.Reporter;
-import org.gusdb.wdk.model.report.ReporterFactory;
-import org.gusdb.wdk.model.report.StandardConfig;
+import org.gusdb.wdk.model.report.config.StandardConfig;
+import org.gusdb.wdk.model.report.util.ReporterFactory;
 
 /**
  * This Action is called by the ActionServlet when a WDK question is asked. It 1) reads param values from
