@@ -274,7 +274,12 @@ wdk.namespace("window.wdk.stepAnalysis", function(ns, $) {
     $element.tabs('disable', tabIndex + 1);
   }
 
-  function loadDisplaySubpanes($element, $attrs) {
+  function initializeDisplaySubpanes($element, $attrs) {
+    setUpEventHandlers($element, $attrs);
+    loadDisplaySubpanes($element, $attrs);
+  }
+
+  function setUpEventHandlers($element, $attrs) {
     var analysisId = $attrs.analysisId;
 
     // add event handlers
@@ -286,6 +291,10 @@ wdk.namespace("window.wdk.stepAnalysis", function(ns, $) {
 
     $element.on('click', '[name="usernotes"]',
         preventEvent(partial(setUserNotes, analysisId, $element)));
+  }
+
+  function loadDisplaySubpanes($element, $attrs) {
+    var analysisId = $attrs.analysisId;
 
     // get json representing analysis (params + status, but not result)
     return doAjax(ROUTES.getAnalysis, {
@@ -583,7 +592,7 @@ wdk.namespace("window.wdk.stepAnalysis", function(ns, $) {
   }
 
   ns.configureAnalysisViews = configureAnalysisViews;
-  ns.loadDisplaySubpanes = loadDisplaySubpanes;
+  ns.initializeDisplaySubpanes = initializeDisplaySubpanes;
   ns.createStepAnalysis = createStepAnalysis;
   ns.copyStepAnalysis = copyStepAnalysis;
   ns.renameStepAnalysis = renameStepAnalysis;

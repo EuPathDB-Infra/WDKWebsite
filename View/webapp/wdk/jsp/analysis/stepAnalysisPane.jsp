@@ -6,7 +6,7 @@
   <html>
     <body>
       <div class="step-analysis-pane" data-analysis-id="${analysisId}"
-           data-controller="wdk.stepAnalysis.loadDisplaySubpanes">
+           data-controller="wdk.stepAnalysis.initializeDisplaySubpanes">
         <div class="ui-helper-clearfix">
           <div style="text-align:right">
             <span>
