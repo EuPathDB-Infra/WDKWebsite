@@ -144,7 +144,7 @@
                 <%-- convert strat ID to string to compare with nested strategy ID which is always a string--%>
                 <c:set var="stratIdAsString">${strategy.strategyId}</c:set>
                 <c:if test="${stratIdAsString ne currentStrategy}" >
-                  <option value="${strategy.strategyId}">${strategy.name} (${strategy.estimateSize} ${recordClass.displayNamePlural})</option>
+                  <option value="${strategy.strategyId}">${strategy.name} (${strategy.estimateSizeNoCalculate} ${recordClass.displayNamePlural})</option>
                 </c:if>
               </c:forEach>
             </select>
