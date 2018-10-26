@@ -6,7 +6,7 @@ var depPath = path.join.bind(null, scriptRoot);
 
 
 var aliases = {
-  'wdk-client': path.join(__dirname, '../../WDKClient/Client/src/Core'),
+  'wdk-client': path.join(__dirname, '../../WDKClient/Client/src'),
 }
 
 // Shims for global style scripts
@@ -88,13 +88,13 @@ var primaryConfig = {
       'lib/jquery-ui',
       'lib/jquery-qtip',
       './webapp/wdk/css/wdk.css',
-      'wdk-client/Style/index.scss',
+      'wdk-client/Core/Style/index.scss',
       'wdk-client'
     ),
 
     'wdk': [].concat(
       './webapp/wdk/css/wdk.css',
-      'wdk-client/Style/index.scss',
+      'wdk-client/Core/Style/index.scss',
       './webapp/wdk/js/index.js'
     )
   },
