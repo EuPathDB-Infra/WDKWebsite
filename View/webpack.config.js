@@ -89,7 +89,7 @@ var primaryConfig = {
       'lib/jquery-qtip',
       './webapp/wdk/css/wdk.css',
       'wdk-client/Core/Style/index.scss',
-      'wdk-client'
+      'wdk-client/Core'
     ),
 
     'wdk': [].concat(

@@ -11,9 +11,9 @@ import {
   initialize as initializeWdk,
   IterableUtils,
   PromiseUtils
-} from 'wdk-client';
+} from 'wdk-client/Core';
 
-export * from 'wdk-client';
+export * from 'wdk-client/Core';
 
 const { Seq } = IterableUtils;
 

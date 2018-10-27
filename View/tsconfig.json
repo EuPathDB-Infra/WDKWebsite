@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "wdk-client": [ "../../WDKClient/Client/src/index.ts"]
+      "wdk-client/*": [ "../../WDKClient/Client/src/*"]
     }
   },
   "include": [
