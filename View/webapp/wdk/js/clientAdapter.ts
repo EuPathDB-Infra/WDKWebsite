@@ -1,5 +1,3 @@
-/// <reference path="../../../../../WDKClient/Client/src/index.d.ts" />
-
 import { get } from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
