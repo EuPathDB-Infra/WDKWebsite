@@ -1,5 +1,3 @@
-/// <reference path="../../../../../WDKClient/Client/src/index.d.ts" />
-
 import { get } from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -11,9 +9,9 @@ import {
   initialize as initializeWdk,
   IterableUtils,
   PromiseUtils
-} from 'wdk-client';
+} from 'wdk-client/Core';
 
-export * from 'wdk-client';
+export * from 'wdk-client/Core';
 
 const { Seq } = IterableUtils;
 

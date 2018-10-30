@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { 
   IterableUtils,
   Controllers
-} from 'wdk-client';
+} from 'wdk-client/Core';
 
 const { Seq } = IterableUtils;
 const { LegacyParamController } = Controllers;

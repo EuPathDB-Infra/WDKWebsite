@@ -1,5 +1,5 @@
 /* global wdk, wdkConfig */
-import { ActionCreators } from 'wdk-client';
+import { ActionCreators } from 'wdk-client/Core';
 import { getContext } from './clientAdapter';
 
 const { UserActionCreators } = ActionCreators;
