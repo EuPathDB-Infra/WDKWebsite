@@ -51,7 +51,7 @@ public class SummaryTableUpdateProcessor {
       String sortingOrder = getFirstValueOrNull(params.get(PARAM_SORT_ORDER));
       String pagerOffset = getFirstValueOrNull(params.get(PARAM_PAGER_OFFSET));
 
-      Question question = step.getQuestion();
+      Question question = step.getAnswerSpec().getQuestion();
       String questionName = question.getFullName();
 
       // handle sorting

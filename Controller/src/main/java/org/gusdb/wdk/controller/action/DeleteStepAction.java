@@ -1,5 +1,7 @@
 package org.gusdb.wdk.controller.action;
 
+import static org.gusdb.wdk.model.user.StepContainer.withId;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +13,19 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.gusdb.fgputil.FormatUtil;
+import org.gusdb.fgputil.validation.ValidationLevel;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
-import org.gusdb.wdk.model.jspwrap.StepBean;
-import org.gusdb.wdk.model.jspwrap.StrategyBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
-import org.gusdb.wdk.model.user.StepUtilities;
+import org.gusdb.wdk.model.user.Step;
+import org.gusdb.wdk.model.user.Strategy;
+import org.gusdb.wdk.model.user.StrategyLoader;
+import org.gusdb.wdk.model.user.User;
+import org.gusdb.wdk.model.user.UserSession;
 
 /**
  * This Action handles moving a step in a search strategy to a different position. It moves the step, updates
@@ -35,8 +41,8 @@ public class DeleteStepAction extends ProcessFilterAction {
       HttpServletResponse response) throws Exception {
     logger.debug("Entering DeleteStepAction...");
 
-    UserBean wdkUser = ActionUtility.getUser(request);
-    WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
+    User wdkUser = ActionUtility.getUser(request).getUser();
+    WdkModel wdkModel = ActionUtility.getWdkModel(servlet).getModel();
     try {
       String state = request.getParameter(CConstants.WDK_STATE_KEY);
 
@@ -52,7 +58,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       if (strStepId == null || strStepId.length() == 0) {
         throw new WdkModelException("No step was specified to delete!");
       }
-      long stepId = Long.valueOf(strStepId);
+      long oldStepId = Long.valueOf(strStepId);
 
       String strategyKey = strStratId;
       if (strStratId.indexOf("_") > 0) {
@@ -60,36 +66,45 @@ public class DeleteStepAction extends ProcessFilterAction {
       }
 
       long oldStrategyId = Long.parseLong(strStratId);
-      StrategyBean strategy = new StrategyBean(wdkUser, StepUtilities.getStrategy(wdkUser.getUser(), oldStrategyId));
+      Strategy strategy = new StrategyLoader(wdkModel, ValidationLevel.RUNNABLE).getStrategyById(oldStrategyId)
+          .orElseThrow(() -> new WdkUserException("Strategy ID " + oldStrategyId + " is not a valid strategy ID."));
+
+      // make sure user owns this strategy
+      if (strategy.getUser().getUserId() != wdkUser.getUserId()) {
+        throw new WdkUserException("You do not have permission to edit this strategy.");
+      }
+
+      // make sure passed step exists in given strategy
+      Step step = strategy.findOptionalStep(withId(oldStepId))
+          .orElseThrow(() -> new WdkUserException("Passed step ID " + oldStepId + " does not belong to strategy with ID " + oldStrategyId));
+
       // verify the checksum
       String checksum = request.getParameter(CConstants.WDK_STRATEGY_CHECKSUM_KEY);
       if (checksum != null && !strategy.getChecksum().equals(checksum)) {
-        ShowStrategyAction.outputOutOfSyncJSON(wdkModel, wdkUser, response, state);
+        ShowStrategyAction.outputOutOfSyncJSON(new WdkModelBean(wdkModel), new UserBean(wdkUser), response, state);
         return null;
       }
 
       // cannot delete step from saved strategy, will need to make a clone first
       if (strategy.getIsSaved()) {
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = new StrategyBean(wdkUser, wdkModel.getModel().getStepFactory().copyStrategy(
-            wdkUser.getUser(), strategy.getStrategy(), stepIdMap, strategy.getName()));
-        // map the old step id to the new one
-        stepId = stepIdMap.get(stepId);
+        strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
+        // map the old step to the new one
+        step = strategy.findStep(withId(stepIdMap.get(step.getStepId())));
       }
 
-      StepBean step = strategy.getStepById(stepId);
       Map<Long, Long> rootMap = strategy.deleteStep(step);
 
-      if (wdkUser.getViewStrategyId() != null && wdkUser.getViewStrategyId().equals(strategyKey) &&
-          wdkUser.getViewStepId() == stepId) {
-        // wdkUser.resetViewResults();
-        wdkUser.setViewResults(strategyKey, strategy.getLatestStep().getFrontId(),
-            wdkUser.getViewPagerOffset());
+      UserSession session = wdkUser.getSession();
+      if (session.getViewStrategyKey() != null &&
+          session.getViewStrategyKey().equals(strategyKey) &&
+          session.getViewStepId() == oldStepId) {
+        session.setViewResults(strategyKey, strategy.getLatestStep().getFrontId(), session.getViewPagerOffset());
       }
 
       // If strategy was marked for deletion as a result of deleting
       // the step, forward to DeleteStrategy
-      if (strategy.getIsDeleted()) {
+      if (strategy.isDeleted()) {
         ActionForward forward = mapping.findForward(CConstants.DELETE_STRATEGY_MAPKEY);
         StringBuffer url = new StringBuffer(forward.getPath());
         url.append("?strategy=" + FormatUtil.urlEncodeUtf8(strStratId));
@@ -99,7 +114,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       }
 
       try {
-        wdkUser.replaceActiveStrategy(oldStrategyId, strategy.getStrategyId(), rootMap);
+        session.replaceActiveStrategy(oldStrategyId, strategy.getStrategyId(), rootMap);
       }
       catch (WdkUserException ex) {
         // Need to add strategy to active strategies list
@@ -117,7 +132,7 @@ public class DeleteStepAction extends ProcessFilterAction {
     }
     catch (Exception ex) {
       logger.error("Error while deleting step", ex);
-      ShowStrategyAction.outputErrorJSON(wdkUser, response, ex);
+      ShowStrategyAction.outputErrorJSON(new UserBean(wdkUser), response, ex);
       return null;
     }
   }

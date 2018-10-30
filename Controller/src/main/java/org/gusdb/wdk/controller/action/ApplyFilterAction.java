@@ -1,5 +1,9 @@
 package org.gusdb.wdk.controller.action;
 
+import static org.gusdb.fgputil.FormatUtil.NL;
+import static org.gusdb.fgputil.FormatUtil.join;
+import static org.gusdb.wdk.model.user.StepContainer.withId;
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,16 +16,20 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.gusdb.fgputil.Tuples.ThreeTuple;
+import org.gusdb.fgputil.validation.ValidationLevel;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
+import org.gusdb.wdk.model.WdkModel;
+import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
-import org.gusdb.wdk.model.filter.Filter;
-import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
-import org.gusdb.wdk.model.jspwrap.QuestionBean;
-import org.gusdb.wdk.model.jspwrap.StepBean;
-import org.gusdb.wdk.model.jspwrap.StrategyBean;
-import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.user.StepUtilities;
+import org.gusdb.wdk.model.answer.spec.AnswerSpec;
+import org.gusdb.wdk.model.answer.spec.AnswerSpecBuilder;
+import org.gusdb.wdk.model.answer.spec.FilterOption;
+import org.gusdb.wdk.model.user.Step;
+import org.gusdb.wdk.model.user.Strategy;
+import org.gusdb.wdk.model.user.StrategyLoader;
+import org.gusdb.wdk.model.user.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -37,40 +45,38 @@ public class ApplyFilterAction extends Action {
       HttpServletResponse response) throws Exception {
     LOG.debug("Entering ApplyFilterAction...");
     try {
-      String filterName = request.getParameter(PARAM_FILTER);
-      if (filterName == null)
-        throw new WdkUserException("Required filter parameter is missing.");
-      String strStepId = request.getParameter(PARAM_STEP);
-      if (strStepId == null)
-        throw new WdkUserException("Required step parameter is missing.");
-      long stepId = Long.valueOf(strStepId);
+      ThreeTuple<Step, String, JSONObject> inputs = getInputs(request);
+      Step step = inputs.getFirst();
+      String filterName = inputs.getSecond();
+      JSONObject filterValue = inputs.getThird();
+      WdkModel wdkModel = ActionUtility.getWdkModel(servlet).getModel();
 
-      UserBean user = ActionUtility.getUser(request);
- 
       // before changing step, need to check if strategy is saved, if yes, make a copy.
-      String strStrategyId = request.getParameter(CConstants.WDK_STRATEGY_ID_KEY);
-      if (strStrategyId != null && !strStrategyId.isEmpty()) {
-        long strategyId = Long.valueOf(strStrategyId.split("_", 2)[0]);
-        StrategyBean strategy = new StrategyBean(user, StepUtilities.getStrategy(user.getUser(), strategyId));
-        if (strategy.getIsSaved()) {
-          // cannot modify saved strategy directly, will need to create a copy, and change the steps of the
-          // copy instead.
-          Map<Long, Long> stepIdMap = new HashMap<>();
-          strategy = user.copyStrategy(strategy, stepIdMap, strategy.getName());
-          // map the old step id to the new one.
-          stepId = stepIdMap.get(stepId);
-        }
+      Strategy strategy = step.getStrategy();
+      if (strategy.getIsSaved()) {
+        // cannot modify saved strategy directly, will need to create a copy, and change the steps of the copy instead
+        Map<Long, Long> stepIdMap = new HashMap<>();
+        strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
+        // map the old step to the new one
+        step = strategy.findStep(withId(stepIdMap.get(step.getStepId())));
+
+        // FIXME: rrd - in this case, I think we need to replace the existing active strategy with the new
+        //        one.  Unless this is handled elsewhere, the user will continue to see their (unmodified)
+        //        saved strategy while their modified, unsaved strat will only be in the all tab
       }
-      
-      StepBean step = new StepBean(user, StepUtilities.getStep(user.getUser(), stepId));
-      JSONObject options = prepareOptions(request);
-      AnswerValueBean answer = step.getAnswerValue();
-      QuestionBean question = answer.getQuestion();
-      Filter filter = question.getFilter(filterName);
-      
-      LOG.debug("Got filter: " + filter.getKey() + ", options=" + options);
-      
-      step.addFilterOption(filter.getKey(), options);
+
+      // Create a new answer spec containing the new filter
+      AnswerSpecBuilder newSpecBuilder = AnswerSpec.builder(step.getAnswerSpec());
+      newSpecBuilder.getFilterOptions().addFilterOption(
+          FilterOption.builder().setFilterName(filterName).setValue(filterValue));
+      AnswerSpec newSpec = newSpecBuilder.build(ValidationLevel.RUNNABLE, strategy);
+
+      if (!newSpec.isValid()) {
+        throw new WdkUserException("Invalid filter value.  The following errors were found:" + NL +
+            join(newSpec.getValidationBundle().getAllErrors(), NL));
+      }
+
+      step.setAnswerSpec(newSpec);
       step.saveParamFilters();
 
       ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
@@ -78,8 +84,6 @@ public class ApplyFilterAction extends Action {
       LOG.debug("Foward to " + CConstants.SHOW_APPLICATION_MAPKEY + ", " + showApplication);
 
       StringBuffer url = new StringBuffer(showApplication.getPath());
-      //String state = request.getParameter(CConstants.WDK_STATE_KEY);
-      //url.append("?state=" + FormatUtil.urlEncodeUtf8(state));
 
       ActionForward forward = new ActionForward(url.toString());
       forward.setRedirect(true);
@@ -88,9 +92,34 @@ public class ApplyFilterAction extends Action {
     }
     catch (Exception ex) {
       LOG.error(ex.getMessage(), ex);
-      ex.printStackTrace();
       throw ex;
     }
+  }
+
+  private ThreeTuple<Step, String, JSONObject> getInputs(HttpServletRequest request) throws WdkUserException, WdkModelException {
+    String filterName = request.getParameter(PARAM_FILTER);
+    if (filterName == null || filterName.trim().isEmpty()) {
+      throw new WdkUserException("Required filter parameter is missing.");
+    }
+    String strStepId = request.getParameter(PARAM_STEP);
+    if (strStepId == null)
+      throw new WdkUserException("Required step parameter is missing.");
+    long stepId = Long.valueOf(strStepId);
+    User user = ActionUtility.getUser(request).getUser();
+    Step step = new StrategyLoader(ActionUtility.getWdkModel(servlet).getModel(), ValidationLevel.RUNNABLE).getStepById(stepId)
+        .orElseThrow(() -> new WdkUserException("Step parameter does not contain a valid step ID."));
+    if (user.getUserId() != step.getUser().getUserId()) {
+      throw new WdkUserException("You do not have permission to modifiy this step.");
+    }
+    if (!step.isValid()) {
+      throw new WdkUserException("New filters can only be applied to valid steps.");
+    }
+    if (step.getAnswerSpec().getQuestion().getFilterOrNull(filterName) == null) {
+      throw new WdkUserException("Filter '" + filterName + "' cannot be applied to step with question '" + step.getAnswerSpec().getQuestionName());
+    }
+    JSONObject filterValue = prepareOptions(request);
+    LOG.debug("Got filter: " + filterName + ", options=" + filterValue);
+    return new ThreeTuple<>(step, filterName, filterValue);
   }
 
   private JSONObject prepareOptions(HttpServletRequest request) {

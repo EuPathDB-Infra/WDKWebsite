@@ -1,5 +1,7 @@
 package org.gusdb.wdk.controller.action.analysis;
 
+import static org.gusdb.wdk.model.user.StepContainer.withId;
+
 import java.util.Map;
 
 import org.gusdb.fgputil.MapBuilder;
@@ -30,17 +32,18 @@ public class ShowStepAnalysisTabAction extends WdkAction {
   protected ActionResult handleRequest(ParamGroup params) throws Exception {
     int strategyId = params.getIntValue(STRATEGY_ID_KEY);
     int stepId = params.getIntValue(STEP_ID_KEY);
-    
-    Strategy strategy = getWdkModel().getModel().getStepFactory().getStrategyById(strategyId);
-    Step step = strategy.getStepById(stepId);
-
-    if (step == null) {
-      throw new WdkUserException("No step bean exists with id " + stepId + " on " +
-            "strategy with id " + strategyId + " for user " + getCurrentUser().getUserId());
+    String errorMsg = "No step bean exists with id " + stepId + " on " +
+        "strategy with id " + strategyId + " for user " + getCurrentUser().getUserId();
+    try {
+      Strategy strategy = getWdkModel().getModel().getStepFactory().getStrategyById(strategyId)
+          .orElseThrow(() -> new WdkUserException(errorMsg));
+      Step step = strategy.findStep(withId(stepId));
+      return new ActionResult().setViewName(SUCCESS)
+          .setRequestAttribute("wdkStrategy", strategy)
+          .setRequestAttribute("wdkStep", step);
     }
-    
-    return new ActionResult().setViewName(SUCCESS)
-        .setRequestAttribute("wdkStrategy", strategy)
-        .setRequestAttribute("wdkStep", step);
+    catch (IllegalArgumentException e) {
+      throw new WdkUserException(errorMsg);
+    }
   }
 }
