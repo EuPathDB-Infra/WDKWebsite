@@ -99,7 +99,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       if (session.getViewStrategyKey() != null &&
           session.getViewStrategyKey().equals(strategyKey) &&
           session.getViewStepId() == oldStepId) {
-        session.setViewResults(strategyKey, strategy.getLatestStep().getFrontId(), session.getViewPagerOffset());
+        session.setViewResults(strategyKey, strategy.getRootStep().getFrontId(), session.getViewPagerOffset());
       }
 
       // If strategy was marked for deletion as a result of deleting
