@@ -1,7 +1,9 @@
 package org.gusdb.wdk.controller.form;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -9,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
+import org.gusdb.fgputil.validation.ValidationLevel;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
 import org.gusdb.wdk.controller.actionutil.QuestionRequestParams;
@@ -20,6 +23,9 @@ import org.gusdb.wdk.model.jspwrap.QuestionBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.query.param.RequestParams;
+import org.gusdb.wdk.model.query.spec.QueryInstanceSpec;
+import org.gusdb.wdk.model.query.spec.QueryInstanceSpecBuilder.FillStrategy;
+import org.gusdb.wdk.model.user.StepContainer;
 
 /**
  * form bean for showing a wdk question from a question set.
@@ -102,16 +108,19 @@ public class QuestionForm extends MapActionForm {
     }
 
     // validate params
-    for (String paramName : params.keySet()) {
-      ParamBean<?> param = params.get(paramName);
-      try {
-        String stableValue = contextValues.get(paramName);
-        param.validate(user, stableValue, contextValues);
-      }
-      catch (Exception ex) {
-        ActionMessage message = new ActionMessage("mapped.properties", param.getPrompt(), ex.getMessage());
+    QueryInstanceSpec spec = QueryInstanceSpec.builder()
+        .putAll(contextValues)
+        .buildValidated(user.getUser(),
+            wdkQuestion.getQuestion().getQuery(),
+            StepContainer.emptyContainer(),
+            ValidationLevel.RUNNABLE,
+            FillStrategy.NO_FILL);
+    for (Entry<String,List<String>> paramErrors : spec.getValidationBundle().getKeyedErrors().entrySet()) {
+      String prompt = wdkQuestion.getParamsMap().get(paramErrors.getKey()).getPrompt();
+      for (String error : paramErrors.getValue()) {
+        ActionMessage message = new ActionMessage("mapped.properties", prompt, error);
         errors.add(ActionErrors.GLOBAL_MESSAGE, message);
-        LOG.error("validation failed.", ex);
+        LOG.error("validation failed for param " + prompt + ": " + error);
       }
     }
 
