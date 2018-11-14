@@ -128,7 +128,7 @@ wdk.namespace("window.wdk.parameterHandlers", function(ns, $) {
       dependedValuesMap[dependedName] = dependedParam.find(':text, textarea, :checked, select').val();
 
       var handleChange = function handleChange(e) {
-        var newValue = e.target.value;
+        var newValue = $(e.target).find(':text, textarea, :checked, select').val();
         var oldValue = dependedValuesMap[dependedName];
         e.stopPropagation();
 

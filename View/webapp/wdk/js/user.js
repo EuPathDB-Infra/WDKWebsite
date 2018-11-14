@@ -1,8 +1,6 @@
 /* global wdk, wdkConfig */
-import { ActionCreators } from 'wdk-client/Core';
+import { showLoginForm, showLoginWarning, showLogoutWarning } from 'wdk-client/Actions/UserActions';
 import { getContext } from './clientAdapter';
-
-const { UserActionCreators } = ActionCreators;
 
 // FIXME Review module
 // Some redundant functions, some undefined functions called, etc.
@@ -22,14 +20,14 @@ wdk.namespace("window.wdk.user", function(ns, $) {
   ns.login = function(action, destination = window.location.href) {
     getContext().then(context => {
       context.store.dispatch(action
-        ? UserActionCreators.showLoginWarning(action, destination)
-        : UserActionCreators.showLoginForm(destination));
+        ? showLoginWarning(action, destination)
+        : showLoginForm(destination));
     });
   };
 
   ns.logout = function() {
     getContext().then(context => {
-      context.store.dispatch(UserActionCreators.showLogoutWarning());
+      context.store.dispatch(showLogoutWarning());
     });
   };
 
