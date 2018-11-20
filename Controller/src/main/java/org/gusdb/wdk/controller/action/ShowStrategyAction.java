@@ -165,12 +165,12 @@ public class ShowStrategyAction extends ShowQuestionAction {
         }
         
         String[] keys = JSONObject.getNames(jsState);
-        Map<Integer, String> oldState = new LinkedHashMap<Integer, String>();
+        Map<Long, String> oldState = new LinkedHashMap<>();
         if (keys != null) {
             for (String key : keys) {
                 if (key.equals("length") || key.equals("count")) continue;
                 JSONObject jsStrategy = jsState.getJSONObject(key);
-                int strategyId = jsStrategy.getInt("id");
+                long strategyId = jsStrategy.getLong("id");
                 String checksum = jsStrategy.getString("checksum");
                 oldState.put(strategyId, checksum);
             }
