@@ -55,10 +55,8 @@ public class CopyStrategyAction extends Action {
       }
       boolean opened = (wdkUser.getStrategyOrder(strStratId) > 0);
 
-      String name = strategy.getName();
-      if (!name.toLowerCase().endsWith(", copy of")) name += ", Copy of";
-      StrategyBean copy = new StrategyBean(wdkUser,
-          wdkModel.getModel().getStepFactory().copyStrategy(strategy.getStrategy().getUser(), strategy.getStrategy(), new HashMap<Long, Long>(), name));
+      StrategyBean copy = new StrategyBean(wdkUser, wdkModel.getModel().getStepFactory()
+          .copyStrategy(strategy.getStrategy().getUser(), strategy.getStrategy(), new HashMap<Long, Long>(), strategy.getName()));
 
       // forward to strategyPage.jsp
       ActionForward showStrategy = mapping.findForward(CConstants.SHOW_STRATEGY_MAPKEY);

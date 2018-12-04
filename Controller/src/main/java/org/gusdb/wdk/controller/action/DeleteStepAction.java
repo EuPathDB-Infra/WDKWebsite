@@ -75,7 +75,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       }
 
       // make sure passed step exists in given strategy
-      Step step = strategy.findOptionalStep(withId(oldStepId))
+      Step step = strategy.findFirstStep(withId(oldStepId))
           .orElseThrow(() -> new WdkUserException("Passed step ID " + oldStepId + " does not belong to strategy with ID " + oldStrategyId));
 
       // verify the checksum
@@ -87,10 +87,11 @@ public class DeleteStepAction extends ProcessFilterAction {
 
       // cannot delete step from saved strategy, will need to make a clone first
       if (strategy.getIsSaved()) {
+        User user = ActionUtility.getUser(request).getUser();
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
+        strategy = wdkModel.getStepFactory().copyStrategy(user, strategy, stepIdMap);
         // map the old step to the new one
-        step = strategy.findStep(withId(stepIdMap.get(step.getStepId())));
+        step = strategy.findFirstStep(withId(stepIdMap.get(step.getStepId()))).get();
       }
 
       Map<Long, Long> rootMap = strategy.deleteStep(step);
