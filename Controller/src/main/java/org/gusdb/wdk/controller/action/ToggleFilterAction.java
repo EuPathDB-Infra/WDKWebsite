@@ -72,7 +72,7 @@ public class ToggleFilterAction extends Action {
       .replaceFirstFilterOption(filterName, oldFilter -> oldFilter.setDisabled(disabled))
       .build(ValidationLevel.RUNNABLE);
     step.setAnswerSpec(newSpec);
-    step.saveParamFilters();
+    step.writeParamFiltersToDb();
 
     ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
 

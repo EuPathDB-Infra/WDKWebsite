@@ -77,7 +77,7 @@ public class ApplyFilterAction extends Action {
       }
 
       step.setAnswerSpec(newSpec);
-      step.saveParamFilters();
+      step.writeParamFiltersToDb();
 
       ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
 
