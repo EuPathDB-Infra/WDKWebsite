@@ -1,5 +1,8 @@
 package org.gusdb.wdk.controller.action.services;
 
+import static org.gusdb.fgputil.FormatUtil.join;
+import static org.gusdb.fgputil.functional.Functions.mapToList;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -21,8 +24,6 @@ import org.apache.struts.action.ActionMapping;
 import org.gusdb.fgputil.FormatUtil;
 import org.gusdb.fgputil.FormatUtil.Style;
 import org.gusdb.fgputil.MapBuilder;
-import org.gusdb.fgputil.functional.FunctionalInterfaces.Function;
-import org.gusdb.fgputil.functional.Functions;
 import org.gusdb.fgputil.web.HttpRequestData;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
 import org.gusdb.wdk.model.MDCUtil;
@@ -59,6 +60,7 @@ public class ProcessRESTAction extends Action {
   private static final ConcurrentSkipListSet<String> RIDS = new ConcurrentSkipListSet<>();
 
   @Override
+  @Deprecated
   public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
@@ -231,9 +233,7 @@ public class ProcessRESTAction extends Action {
       }
       else {
         response.setContentType("text/plain");
-        String messages = FormatUtil.join(Functions.mapToList(msg.keySet(), new Function<String,String>() {
-          @Override public String apply(String key) { return "\"" + key + ": " + msg.get(key) + "\""; }
-        }).toArray(), ",");
+        String messages = join(mapToList(msg.keySet(), key -> "\"" + key + ": " + msg.get(key) + "\"").toArray(), ",");
         writer.print("{\"response\":{\"error\":{\"type\":\"" + errType + "\",\"code\":\"" + errCode +
             "\",\"msg\":[" + messages + "]}}}");
       }
@@ -274,7 +274,8 @@ public class ProcessRESTAction extends Action {
     }
   }
 
-  private void writeWADL(QuestionBean wdkQuestion, PrintWriter writer) throws WdkModelException {
+  @Deprecated
+  private void writeWADL(QuestionBean wdkQuestion, PrintWriter writer) {
     LOG.debug(wdkQuestion.getDisplayName());
     String def_value = "";
     String repeating = "";
