@@ -93,6 +93,7 @@ public class ShowQuestionAction extends Action {
 
   }
 
+  @Deprecated
   public static void prepareQuestionForm(QuestionBean wdkQuestion, ActionServlet servlet,
       HttpServletRequest request, QuestionForm qForm) throws WdkUserException, WdkModelException {
     LOG.trace("Entering prepareQustionForm()");
