@@ -198,7 +198,8 @@ public class ProcessBooleanStageHandler implements StageHandler {
     logger.debug("creating step from strategy: " + importStrategyId);
     StrategyBean importStrategy = user.getStrategy(importStrategyId);
     StepBean step = importStrategy.getLatestStep();
-    StepBean childStep = step.deepClone(newStrategy.getStrategyId(), new HashMap<Long, Long>());
+    StepBean childStep = step.deepClone();
+    // FIXME: This is now broken!!!  childStep is NOT attached to newStrategy!
     childStep.setIsCollapsible(true);
     childStep.setCollapsedName("Copy of " + importStrategy.getName());
     childStep.update(false);

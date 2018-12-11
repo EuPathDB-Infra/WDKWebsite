@@ -70,7 +70,7 @@ public class ToggleFilterAction extends Action {
 
     AnswerSpec newSpec = AnswerSpec.builder(step.getAnswerSpec())
       .replaceFirstFilterOption(filterName, oldFilter -> oldFilter.setDisabled(disabled))
-      .build(ValidationLevel.RUNNABLE);
+      .build(step.getUser(), step.getContainer(), ValidationLevel.RUNNABLE);
     step.setAnswerSpec(newSpec);
     step.writeParamFiltersToDb();
 

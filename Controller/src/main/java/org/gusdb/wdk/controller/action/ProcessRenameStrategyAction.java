@@ -83,12 +83,10 @@ public class ProcessRenameStrategyAction extends Action {
                     // means savedName is not null), and the new name to save
                     // with is different from the savedName (which means we're
                     // doing a "save as"), then make a new copy of this strategy
-                    if (strategy.getIsSaved()
-                            && !customName.equals(strategy.getSavedName())) {
-                        // clone the last step
-                        long strategyId = wdkUser.getNewStrategyId();
-                        StepBean step = strategy.getLatestStep().deepClone(strategyId, new HashMap<Long, Long>());
-                        strategy = wdkUser.createStrategy(step, strategy.getIsSaved(), strategy.getIsDeleted());
+                    if (strategy.getIsSaved() && !customName.equals(strategy.getSavedName())) {
+                        // clone the strategy
+                        strategy = new StrategyBean(wdkUser, wdkModel.getModel().getStepFactory()
+                            .copyStrategy(wdkUser.getUser(), strategy.getStrategy(), new HashMap<>()));
                     }
 
                     // mark the strategy as saved, set saved name
