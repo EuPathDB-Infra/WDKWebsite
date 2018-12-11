@@ -4,9 +4,15 @@ wdk.namespace("window.wdk.strategy.error", function (ns, $) {
 
   var OOSMessage = "Your last request was sent from a page that is out " +
       "of date. Please reload the page and try again.";
+
   var SessionTimeOutMessage = "Your session may have timed out and all " +
       "your data has been lost.  By registering and logging in you can " +
       "prevent this from happening in the future.";
+
+  var GenericErrorMessage = 'The results could not be loaded. Please reload the page. ' +
+    'If the problem persists, you can report the error using ' +
+    'the Contact Us page (you can find the link at the top right ' +
+    'of the page).';
 
   function ErrorHandler(evt, data, strategy, qform, name, fromHist) {
     var type = null;
@@ -39,10 +45,7 @@ wdk.namespace("window.wdk.strategy.error", function (ns, $) {
       // Finally, render the strategy panel again
       wdk.strategy.controller.showStrategies(currentView, false, 0);
 
-      alert('The results could not be loaded. Please reload the page. ' +
-            'If the problem persists, you can report the error using ' +
-            'the Contact Us page (you can find the link at the top right ' +
-            'of the page).');
+      alert(GenericErrorMessage);
       return;
     }
 
@@ -105,7 +108,7 @@ wdk.namespace("window.wdk.strategy.error", function (ns, $) {
           }
         }
       } else { // General Error Catcher
-        alert(data.message);
+        alert(data.message || GenericErrorMessage);
         //TODO : Add a AJAX call to send an e-mail to Administrator with exception, stack trace and message
         wdk.strategy.controller.initDisplay(0);
       }
