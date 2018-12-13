@@ -54,7 +54,10 @@ public class ProcessBooleanStageHandler implements StageHandler {
     String[] pieces = strStratId.split("_", 2);
     long strategyId = Long.valueOf(pieces[0]);
     Long branchId = (pieces.length == 1) ? null : Long.valueOf(pieces[1]);
-    StrategyBean strategy = new StrategyBean(user, StepUtilities.getStrategy(user.getUser(), strategyId));
+    StrategyBean strategy = new StrategyBean(user, wdkModel.getModel().getStepFactory()
+        .getStrategyById(strategyId)
+        .filter(str -> str.getUser().getUserId() == user.getUser().getUserId())
+        .orElseThrow(() -> new WdkUserException("Submitted strategy ID " + strategyId + " does not belong to this user.")));
 
     String strStepId = request.getParameter(PARAM_STEP);
     long stepId = (strStepId == null || strStepId.isEmpty()) ? 0 : Long.valueOf(strStepId);
@@ -62,7 +65,7 @@ public class ProcessBooleanStageHandler implements StageHandler {
     logger.debug("Strategy: id=" + strategy.getStrategyId() + ", saved=" + strategy.getIsSaved());
     if (strategy.getIsSaved()) {
       Map<Long, Long> stepIdMap = new HashMap<>();
-      strategy = user.copyStrategy(strategy, stepIdMap, strategy.getName());
+      strategy = user.copyStrategy(strategy, stepIdMap);
 
       // make sure to also change the strategy key in the wizard form, so the new unsaved strategy can be
       // carried over the next stages.

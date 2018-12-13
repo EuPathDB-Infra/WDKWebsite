@@ -82,7 +82,7 @@ public class ProcessBooleanAction extends Action {
       // cannot change step on saved strategy, will need to make a clone first
       if (strategy.getIsSaved()) {
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = user.copyStrategy(strategy, stepIdMap, strategy.getName());
+        strategy = user.copyStrategy(strategy, stepIdMap);
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
         if (branchId != 0) branchId = stepIdMap.get(branchId);

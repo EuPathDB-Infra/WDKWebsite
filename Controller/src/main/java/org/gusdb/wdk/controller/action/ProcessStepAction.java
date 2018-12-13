@@ -93,7 +93,7 @@ public class ProcessStepAction extends Action {
       // cannot change step in saved strategy, will need to make a clone first
       Map<Long, Long> stepIdMap = new HashMap<>();
       if (strategy.getIsSaved()) {
-        strategy = user.copyStrategy(strategy, stepIdMap, strategy.getName());
+        strategy = user.copyStrategy(strategy, stepIdMap);
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
         // set the new strategy as the active strategy for the view

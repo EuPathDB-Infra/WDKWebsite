@@ -91,7 +91,8 @@ public class ExpandStepAction extends Action {
       // cannot change step (unnest or make a new nested) on saved strategy, will need to make a clone first
       if ( strategy.getIsSaved() && ( uncollapse == true || !step.getIsCollapsible() ) ) {
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = wdkUser.copyStrategy(strategy, stepIdMap, strategy.getName());
+        strategy = new StrategyBean(wdkUser, wdkModel.getModel().getStepFactory()
+            .copyStrategy(wdkUser.getUser(), strategy.getStrategy(), stepIdMap));
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
         step = strategy.getStepById(stepId);
