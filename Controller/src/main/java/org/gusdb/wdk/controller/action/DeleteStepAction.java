@@ -86,7 +86,7 @@ public class DeleteStepAction extends ProcessFilterAction {
       }
 
       // cannot delete step from saved strategy, will need to make a clone first
-      if (strategy.getIsSaved()) {
+      if (strategy.isSaved()) {
         User user = ActionUtility.getUser(request).getUser();
         Map<Long, Long> stepIdMap = new HashMap<>();
         strategy = wdkModel.getStepFactory().copyStrategy(user, strategy, stepIdMap);

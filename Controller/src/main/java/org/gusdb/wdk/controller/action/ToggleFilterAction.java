@@ -25,16 +25,16 @@ public class ToggleFilterAction extends Action {
   public static final String PARAM_FILTER = "filter";
   public static final String PARAM_STEP = "step";
   public static final String PARAM_DISABLED = "disabled";
-  
+
   public static final String ATTR_SUMMARY = "summary";
-  
+
   private static final Logger LOG = Logger.getLogger(ToggleFilterAction.class);
 
   @Override
   public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
       HttpServletResponse response) throws Exception {
     LOG.debug("Entering ToggleFilterAction...");
-    
+
     String filterName = request.getParameter(PARAM_FILTER);
     if (filterName == null)
       throw new WdkUserException("Required filter parameter is missing.");
@@ -46,7 +46,7 @@ public class ToggleFilterAction extends Action {
     if (strDisabled == null)
       throw new WdkUserException("Required disabled parameter is missing.");
     boolean disabled = Boolean.valueOf(strDisabled);
-    
+
     WdkModel wdkModel = ActionUtility.getWdkModel(servlet).getModel();
     User user = ActionUtility.getUser(request).getUser();
     Step step = wdkModel.getStepFactory().getStepById(stepId)
@@ -63,7 +63,7 @@ public class ToggleFilterAction extends Action {
           .orElseThrow(() -> new WdkUserException("No strategy exists with ID: " + strategyId));
       strategy.findFirstStep(withId(stepId)).orElseThrow(() ->
           new WdkUserException("Step " + stepId + " does not belong to strategy " + strategyId));
-      if (strategy.getIsSaved()) {
+      if (strategy.isSaved()) {
         strategy.update(false);
       }
     }

@@ -53,7 +53,7 @@ public class ApplyFilterAction extends Action {
 
       // before changing step, need to check if strategy is saved, if yes, make a copy.
       Strategy strategy = step.getStrategy();
-      if (strategy.getIsSaved()) {
+      if (strategy.isSaved()) {
         // cannot modify saved strategy directly, will need to create a copy, and change the steps of the copy instead
         Map<Long, Long> stepIdMap = new HashMap<>();
         strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
