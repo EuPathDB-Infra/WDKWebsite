@@ -17,7 +17,7 @@ import com.github.fge.msgsimple.provider.LoadingMessageSourceProvider;
 
 public class WdkInitializer {
 
-  private static final Logger LOG = Logger.getLogger(WdkInitializer.class);
+  private static final Logger LOG = Logger.getLogger(ApplicationInitListener.class);
 
   public static void initializeWdk(ServletContext servletContext) {
     try {
@@ -55,8 +55,7 @@ public class WdkInitializer {
     }
     catch (Exception e) {
       LOG.error("Unable to initialize WDK web application.", e);
-      // throw an exception to keep the webapp from loading
-      throw new RuntimeException("Unable to initialize WDK web application.", e);
+      throw new RuntimeException(e);
     }
     finally {
       MDCUtil.clearValues();
