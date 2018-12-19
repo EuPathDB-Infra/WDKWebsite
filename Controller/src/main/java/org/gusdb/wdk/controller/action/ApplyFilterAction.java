@@ -17,6 +17,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.gusdb.fgputil.Tuples.ThreeTuple;
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.fgputil.validation.ValidationLevel;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
@@ -49,6 +50,7 @@ public class ApplyFilterAction extends Action {
       Step step = inputs.getFirst();
       String filterName = inputs.getSecond();
       JSONObject filterValue = inputs.getThird();
+      User user = ActionUtility.getUser(request).getUser();
       WdkModel wdkModel = ActionUtility.getWdkModel(servlet).getModel();
 
       // before changing step, need to check if strategy is saved, if yes, make a copy.
@@ -58,7 +60,7 @@ public class ApplyFilterAction extends Action {
         Map<Long, Long> stepIdMap = new HashMap<>();
         strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
         // map the old step to the new one
-        step = strategy.findStep(withId(stepIdMap.get(step.getStepId())));
+        step = strategy.findFirstStep(withId(stepIdMap.get(step.getStepId())));
 
         // FIXME: rrd - in this case, I think we need to replace the existing active strategy with the new
         //        one.  Unless this is handled elsewhere, the user will continue to see their (unmodified)
@@ -66,17 +68,16 @@ public class ApplyFilterAction extends Action {
       }
 
       // Create a new answer spec containing the new filter
-      AnswerSpecBuilder newSpecBuilder = AnswerSpec.builder(step.getAnswerSpec());
-      newSpecBuilder.getFilterOptions().addFilterOption(
-          FilterOption.builder().setFilterName(filterName).setValue(filterValue));
-      AnswerSpec newSpec = newSpecBuilder.build(ValidationLevel.RUNNABLE, strategy);
+      RunnableObj<AnswerSpec> newSpec = AnswerSpec
+          .builder(step.getAnswerSpec())
+          .replaceFirstFilterOption(filterName, filter -> filter.setValue(filterValue))
+          .build(user, strategy, ValidationLevel.RUNNABLE)
+          .getRunnable()
+          .getOrThrow(spec -> new WdkUserException("Invalid filter value.  " +
+              "The following errors were found:" + NL +
+              join(spec.getValidationBundle().getAllErrors(), NL)));
 
-      if (!newSpec.isValid()) {
-        throw new WdkUserException("Invalid filter value.  The following errors were found:" + NL +
-            join(newSpec.getValidationBundle().getAllErrors(), NL));
-      }
-
-      step.setAnswerSpec(newSpec);
+      step.setAnswerSpec(newSpec.getObject());
       step.writeParamFiltersToDb();
 
       ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
