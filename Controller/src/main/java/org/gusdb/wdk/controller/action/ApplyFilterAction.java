@@ -25,9 +25,9 @@ import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.answer.spec.AnswerSpec;
-import org.gusdb.wdk.model.answer.spec.AnswerSpecBuilder;
-import org.gusdb.wdk.model.answer.spec.FilterOption;
 import org.gusdb.wdk.model.user.Step;
+import org.gusdb.wdk.model.user.Step.StepBuilder;
+import org.gusdb.wdk.model.user.StepFactoryHelpers.UserCache;
 import org.gusdb.wdk.model.user.Strategy;
 import org.gusdb.wdk.model.user.StrategyLoader;
 import org.gusdb.wdk.model.user.User;
@@ -58,27 +58,30 @@ public class ApplyFilterAction extends Action {
       if (strategy.isSaved()) {
         // cannot modify saved strategy directly, will need to create a copy, and change the steps of the copy instead
         Map<Long, Long> stepIdMap = new HashMap<>();
-        strategy = wdkModel.getStepFactory().copyStrategy(strategy, stepIdMap);
+        strategy = wdkModel.getStepFactory().copyStrategy(user, strategy, stepIdMap);
         // map the old step to the new one
-        step = strategy.findFirstStep(withId(stepIdMap.get(step.getStepId())));
+        step = strategy.findFirstStep(withId(stepIdMap.get(step.getStepId()))).get();
 
         // FIXME: rrd - in this case, I think we need to replace the existing active strategy with the new
         //        one.  Unless this is handled elsewhere, the user will continue to see their (unmodified)
         //        saved strategy while their modified, unsaved strat will only be in the all tab
       }
 
-      // Create a new answer spec containing the new filter
-      RunnableObj<AnswerSpec> newSpec = AnswerSpec
-          .builder(step.getAnswerSpec())
-          .replaceFirstFilterOption(filterName, filter -> filter.setValue(filterValue))
-          .build(user, strategy, ValidationLevel.RUNNABLE)
-          .getRunnable()
-          .getOrThrow(spec -> new WdkUserException("Invalid filter value.  " +
-              "The following errors were found:" + NL +
-              join(spec.getValidationBundle().getAllErrors(), NL)));
+      // create a strategy builder from the step we are modifying
+      StepBuilder modifiedStep = Step.builder(step)
+          .setAnswerSpec(AnswerSpec
+              .builder(step.getAnswerSpec())
+              .replaceFirstFilterOption(filterName, filter -> filter.setValue(filterValue)));
 
-      step.setAnswerSpec(newSpec.getObject());
-      step.writeParamFiltersToDb();
+      RunnableObj<Strategy> modifiedStrategy = Strategy.builder(strategy)
+          .addStep(modifiedStep)
+          .build(new UserCache(user), ValidationLevel.RUNNABLE)
+          .getRunnable()
+          .getOrThrow(strat -> new WdkUserException("Invalid filter value.  " +
+              "The following errors were found:" + NL +
+              join(strat.getValidationBundle().getAllErrors(), NL)));
+
+      wdkModel.getStepFactory().updateStrategy(modifiedStrategy.getObject());
 
       ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
 

@@ -32,12 +32,13 @@ public class ShowStepAnalysisTabAction extends WdkAction {
   protected ActionResult handleRequest(ParamGroup params) throws Exception {
     int strategyId = params.getIntValue(STRATEGY_ID_KEY);
     int stepId = params.getIntValue(STEP_ID_KEY);
-    String errorMsg = "No step bean exists with id " + stepId + " on " +
+    String errorMsg = "No step exists with id " + stepId + " on " +
         "strategy with id " + strategyId + " for user " + getCurrentUser().getUserId();
     try {
       Strategy strategy = getWdkModel().getModel().getStepFactory().getStrategyById(strategyId)
           .orElseThrow(() -> new WdkUserException(errorMsg));
-      Step step = strategy.findStep(withId(stepId));
+      Step step = strategy.findFirstStep(withId(stepId))
+          .orElseThrow(() -> new WdkUserException(errorMsg));
       return new ActionResult().setViewName(SUCCESS)
           .setRequestAttribute("wdkStrategy", strategy)
           .setRequestAttribute("wdkStep", step);
