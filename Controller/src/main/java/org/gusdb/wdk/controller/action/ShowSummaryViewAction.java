@@ -3,90 +3,59 @@ package org.gusdb.wdk.controller.action;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
-import org.gusdb.wdk.controller.summary.DefaultSummaryViewHandler;
+import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.answer.SummaryView;
-import org.gusdb.wdk.model.answer.SummaryViewHandler;
-import org.gusdb.wdk.model.jspwrap.QuestionBean;
+import org.gusdb.wdk.model.answer.spec.AnswerSpec;
 import org.gusdb.wdk.model.jspwrap.StepBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.jspwrap.WdkModelBean;
+import org.gusdb.wdk.model.user.Step;
+import org.gusdb.wdk.model.user.User;
 
-public class ShowSummaryViewAction extends Action {
+public class ShowSummaryViewAction extends SummaryViewAction {
 
-    public static final String PARAM_STEP = "step";
-    public static final String PARAM_VIEW = "view";
+  private static final Logger LOG = Logger.getLogger(ShowSummaryViewAction.class);
 
-    public static final String ATTR_STEP = "wdkStep";
-    public static final String ATTR_VIEW = "wdkView";
-    public static final String ATTR_REQUEST_URI = "requestUri";
+  public static final String ATTR_STEP = "wdkStep";
+  public static final String ATTR_VIEW = "wdkView";
+  public static final String ATTR_REQUEST_URI = "requestUri";
 
-    private static final Logger logger = Logger.getLogger(ShowSummaryViewAction.class);
+  @Override
+  protected ActionForward handleSummaryViewRequest(
+      User user,
+      RunnableObj<Step> step,
+      SummaryView summaryView,
+      Map<String, String[]> params,
+      HttpServletRequest request,
+      ActionMapping mapping) throws WdkModelException, WdkUserException {
 
-    @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        logger.debug("Entering ShowSummaryViewAction");
+    // process the handler and add resulting view data to request scope
+    RunnableObj<AnswerSpec> answerSpec = Step.getRunnableAnswerSpec(step);
+    ActionUtility.applyModel(request, getHandler(summaryView).process(answerSpec, params, user));
 
-        WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
-        UserBean wdkUser = ActionUtility.getUser(request);
+    // set this summary view as the user's current preference
+    user.getPreferences().setCurrentSummaryView(answerSpec.getObject().getQuestion(), summaryView);
 
-        String strStep = request.getParameter(PARAM_STEP);
-        if (strStep == null || strStep.length() == 0)
-            throw new WdkUserException("Required step parameter is missing.");
-        StepBean step;
-        try {
-          step = wdkUser.getStep(Long.valueOf(strStep));
-        } catch(NumberFormatException ex) {
-          throw new WdkUserException("The step id is invalid: " + strStep);
-        }
+    // add attributes needed by JSP
+    LOG.debug("step id: " + step.getObject().getStepId());
+    request.setAttribute(ATTR_STEP, new StepBean(new UserBean(user), step.getObject()));
 
-        request.setAttribute(ATTR_STEP, step);
+    LOG.debug("request uri: " + request.getRequestURI());
+    request.setAttribute(ATTR_REQUEST_URI, request.getRequestURI());
 
-        QuestionBean question = step.getQuestion();
-        String viewName = request.getParameter(PARAM_VIEW);
-        SummaryView view;
-        if (viewName == null || viewName.length() == 0) {
-            view = wdkUser.getUser().getPreferences().getCurrentSummaryView(question.getQuestion());
-            if (view == null) view = question.getDefaultSummaryView();
-        } else {
-            Map<String, SummaryView> views = question.getSummaryViews();
-            view = views.get(viewName);
-            if (view == null)
-                throw new WdkUserException("Invalid view name: '" + view + "'");
+    LOG.debug("summary view: " + summaryView.getName());
+    request.setAttribute(ATTR_VIEW, summaryView);
 
-            wdkUser.setCurrentSummaryView(question, view);
-        }
+    LOG.debug("view=" + summaryView.getName() + ", jsp=" + summaryView.getJsp());
+    ActionForward forward = new ActionForward(summaryView.getJsp());
 
-        // automatic views return null handlers; use default if this is the case
-        SummaryViewHandler handler = view.getHandlerInstance();
-        if (handler == null) {
-          handler = new DefaultSummaryViewHandler();
-        }
-
-        // process the handler and add resulting view data to request scope
-        ActionUtility.applyModel(request, handler.process(
-            step.getStep(), request.getParameterMap(), wdkUser.getUser(), wdkModel.getModel()));
-
-        logger.debug("request uri: " + request.getRequestURI());
-        request.setAttribute(ATTR_REQUEST_URI, request.getRequestURI());
-
-        logger.debug("summary view: " + view.getName());
-        request.setAttribute(ATTR_VIEW, view);
-
-        logger.debug("view=" + view.getName() + ", jsp=" + view.getJsp());
-        ActionForward forward = new ActionForward(view.getJsp());
-
-        logger.debug("Leaving ShowSummaryViewAction");
-        return forward;
-    }
+    LOG.debug("Leaving ShowSummaryViewAction");
+    return forward;
+  }
 }
