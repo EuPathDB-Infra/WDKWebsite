@@ -7,12 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.ActionServlet;
 import org.gusdb.wdk.controller.action.ShowQuestionAction;
 import org.gusdb.wdk.controller.action.WizardAction;
-import org.gusdb.wdk.controller.actionutil.ActionUtility;
 import org.gusdb.wdk.controller.form.QuestionForm;
 import org.gusdb.wdk.controller.form.WizardForm;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.QuestionBean;
 import org.gusdb.wdk.model.jspwrap.RecordClassBean;
@@ -29,9 +28,9 @@ public class ShowBasketStageHandler implements StageHandler {
     private static final Logger logger = Logger.getLogger(ShowBasketStageHandler.class);
 
     @Override
-    public Map<String, Object> execute(ActionServlet servlet,
+    public Map<String, Object> execute(WdkModel wdkModelRaw,
             HttpServletRequest request, HttpServletResponse response,
-            WizardForm wizardForm) throws Exception {
+            WizardFormIfc wizardForm) throws Exception {
         logger.debug("Entering BasketStageHandler....");
 
         String rcName = request.getParameter(PARAM_RECORD_CLASS);
@@ -39,13 +38,13 @@ public class ShowBasketStageHandler implements StageHandler {
             throw new WdkUserException("Required " + PARAM_RECORD_CLASS
                     + " parameter is missing");
 
-        WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
+        WdkModelBean wdkModel = new WdkModelBean(wdkModelRaw);
         RecordClassBean recordClass = wdkModel.getRecordClassMap().get(rcName);
         QuestionBean question = recordClass.getSnapshotBasketQuestion();
 
         // prepare question form
         QuestionForm questionForm = new QuestionForm();
-        ShowQuestionAction.prepareQuestionForm(question, servlet, request,
+        ShowQuestionAction.prepareQuestionForm(question, request,
                 questionForm);
         wizardForm.copyFrom(questionForm);
 

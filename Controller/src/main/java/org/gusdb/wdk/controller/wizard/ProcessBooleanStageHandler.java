@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.ActionServlet;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.action.ProcessBooleanAction;
 import org.gusdb.wdk.controller.action.ProcessQuestionAction;
@@ -15,13 +14,13 @@ import org.gusdb.wdk.controller.actionutil.ActionUtility;
 import org.gusdb.wdk.controller.form.QuestionForm;
 import org.gusdb.wdk.controller.form.WizardForm;
 import org.gusdb.wdk.model.Utilities;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.QuestionBean;
 import org.gusdb.wdk.model.jspwrap.StepBean;
 import org.gusdb.wdk.model.jspwrap.StrategyBean;
 import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.user.StepUtilities;
 
 public class ProcessBooleanStageHandler implements StageHandler {
@@ -37,14 +36,13 @@ public class ProcessBooleanStageHandler implements StageHandler {
   private static final Logger logger = Logger.getLogger(ProcessBooleanStageHandler.class);
 
   @Override
-  public Map<String, Object> execute(ActionServlet servlet, HttpServletRequest request,
-      HttpServletResponse response, WizardForm wizardForm) throws Exception {
+  public Map<String, Object> execute(WdkModel wdkModel, HttpServletRequest request,
+      HttpServletResponse response, WizardFormIfc wizardForm) throws Exception {
     logger.debug("Entering BooleanStageHandler...");
 
     Map<String, Object> attributes = new HashMap<String, Object>();
 
     UserBean user = ActionUtility.getUser(request);
-    WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
 
 
     String strStratId = request.getParameter(PARAM_STRATEGY);
@@ -93,11 +91,10 @@ public class ProcessBooleanStageHandler implements StageHandler {
       // a question name specified, either create a step from it, or revise a current step
       String action = request.getParameter(ProcessBooleanAction.PARAM_ACTION);
       if (action.equals(WizardForm.ACTION_REVISE)) {
-        childStep = updateStepWithQuestion(servlet, request, wizardForm, strategy, questionName, user, stepId);
+        childStep = updateStepWithQuestion(request, wizardForm, strategy, questionName, user, stepId);
       }
       else {
-        childStep = createStepFromQuestion(servlet, request, wizardForm, strategy, questionName, user,
-            wdkModel);
+        childStep = createStepFromQuestion(request, wizardForm, strategy, questionName, user, wdkModel);
       }
     }
     else if (importStrategyId != null && importStrategyId.length() > 0) {
@@ -121,8 +118,8 @@ public class ProcessBooleanStageHandler implements StageHandler {
     return attributes;
   }
 
-  public static StepBean updateStepWithQuestion(ActionServlet servlet, HttpServletRequest request,
-      WizardForm wizardForm, StrategyBean strategy, String questionName, UserBean user,
+  public static StepBean updateStepWithQuestion(HttpServletRequest request,
+      WizardFormIfc wizardForm, StrategyBean strategy, String questionName, UserBean user,
       long stepId) throws WdkUserException, WdkModelException {
     logger.debug("updating step with question: " + questionName);
 
@@ -140,7 +137,6 @@ public class ProcessBooleanStageHandler implements StageHandler {
 
     // get params
     QuestionForm questionForm = new QuestionForm();
-    questionForm.setServlet(servlet);
     questionForm.setQuestionFullName(questionName);
     questionForm.copyFrom(wizardForm);
     Map<String, String> params = ProcessQuestionAction.prepareParams(user, request, questionForm);
@@ -167,8 +163,9 @@ public class ProcessBooleanStageHandler implements StageHandler {
     return childStep;
   }
 
-  private StepBean createStepFromQuestion(ActionServlet servlet, HttpServletRequest request,
-      WizardForm wizardForm, StrategyBean strategy, String questionName, UserBean user, WdkModelBean wdkModel)
+  private StepBean createStepFromQuestion(HttpServletRequest request,
+      WizardFormIfc wizardForm, StrategyBean strategy, String questionName,
+      UserBean user, WdkModel wdkModel)
       throws WdkUserException, WdkModelException {
     logger.debug("creating step from question: " + questionName);
 
@@ -186,13 +183,12 @@ public class ProcessBooleanStageHandler implements StageHandler {
 
     // get params
     QuestionForm questionForm = new QuestionForm();
-    questionForm.setServlet(servlet);
     questionForm.setQuestionFullName(questionName);
     questionForm.copyFrom(wizardForm);
     Map<String, String> params = ProcessQuestionAction.prepareParams(user, request, questionForm);
 
     // create child step
-    QuestionBean question = wdkModel.getQuestion(questionName);
+    QuestionBean question = new QuestionBean(wdkModel.getQuestion(questionName));
     return user.createStep(strategy.getStrategyId(), question, params, null, false, weight);
   }
 
