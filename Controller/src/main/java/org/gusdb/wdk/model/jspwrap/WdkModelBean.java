@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
+import org.gusdb.wdk.model.Reference;
 import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
@@ -29,11 +29,7 @@ import org.gusdb.wdk.model.xml.XmlRecordClassSet;
  */
 public class WdkModelBean implements ConnectionContainer {
 
-    private static final Logger logger = Logger.getLogger(WdkModelBean.class.getName());
-
     WdkModel wdkModel;
-
-    private String questionName;
 
     public WdkModelBean(WdkModel wdkModel) {
         this.wdkModel = wdkModel;
@@ -43,11 +39,6 @@ public class WdkModelBean implements ConnectionContainer {
         return wdkModel.getProperties();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.gusdb.wdk.model.WdkModel#getVersion()
-     */
     public String getVersion() {
         return wdkModel.getVersion();
     }
@@ -66,7 +57,7 @@ public class WdkModelBean implements ConnectionContainer {
 
     // to do: figure out how to do this without using getModel()
     public WdkModel getModel() {
-        return this.wdkModel;
+        return wdkModel;
     }
 
     /**
@@ -147,7 +138,7 @@ public class WdkModelBean implements ConnectionContainer {
      * @return Map of questionSetName --> {@link QuestionSetBean}
      */
     public Map<String, QuestionSetBean> getQuestionSetsMap() {
-        Map<String, QuestionSet> qSets = wdkModel.getQuestionSetsMap();
+        Map<String, QuestionSet> qSets = wdkModel.getQuestionSets();
         Map<String, QuestionSetBean> qSetBeans = new LinkedHashMap<String, QuestionSetBean>();
         for (String qSetKey : qSets.keySet()) {
             QuestionSetBean qSetBean = new QuestionSetBean(qSets.get(qSetKey));
@@ -279,7 +270,8 @@ public class WdkModelBean implements ConnectionContainer {
 
     public QuestionBean getQuestion(String questionFullName)
             throws WdkModelException {
-        return new QuestionBean(wdkModel.getQuestion(questionFullName));
+        return new QuestionBean(wdkModel.getQuestion(questionFullName)
+            .orElseThrow(() -> new WdkModelException("No question exists with name " + questionFullName)));
     }
 
     public Map<String, ParamBean<?>> getParams(UserBean user) throws WdkModelException {
@@ -297,30 +289,77 @@ public class WdkModelBean implements ConnectionContainer {
         return new RecordClassBean(wdkModel.getRecordClass(rcName));
     }
 
-    public void setQuestionName(String questionName) {
-        this.questionName = questionName;
-    }
-
-    public QuestionBean getQuestion() {
-        try {
-            return new QuestionBean(wdkModel.getQuestion(questionName));
-        } catch (Exception ex) {
-            logger.error(ex);
-            return null;
-        }
-    }
-
     @Override
     public Connection getConnection(String key) 
         throws WdkModelException, SQLException {
       return wdkModel.getConnection(key);
     }
 
+    /**
+     * Checks for a valid question name and throws WdkUserException if param is
+     * not valid.  For now we simply check that it is a valid two-part name
+     * (i.e. \S+\.\S+), so we will still get a WdkModelException down the line
+     * if the question name is the correct format but does not actually exist.
+     * We do this because sometimes developers change question names in one
+     * place but not another and if so, then we want to know about it.  If we
+     * mask this mistake with a WdkUserException, we might see bad consequences
+     * down the line.
+     * 
+     * @param qFullName potential question name
+     * @throws WdkUserException if name is not in format *.*
+     */
     public void validateQuestionFullName(String qFullName) throws WdkUserException {
-      wdkModel.validateQuestionFullName(qFullName);
+      String message = "The search '" + qFullName + "' is not or is no longer available.";
+      try {
+        // First check to see if this is a 'regular' question; if not, check XML questions
+        if (qFullName == null || wdkModel.getQuestion(qFullName) == null) {
+          throw new WdkModelException("Question name is null or resulting question is null");
+        }
+      }
+      catch (WdkModelException e) {
+        try {
+          // exception will be thrown below; will mean that name is neither 'regular' question nor XML
+          Reference r = new Reference(qFullName);
+          XmlQuestionSet xqs = wdkModel.getXmlQuestionSet(r.getSetName());
+          xqs.getQuestion(r.getElementName());
+        }
+        catch (WdkModelException e2) {
+          throw new WdkUserException(message, e2);
+        }
+      }
     }
 
+    /**
+     * Checks for a valid record class name and throws WdkUserException if param
+     * is not valid.  For now we simply check that it is a valid two-part name
+     * (i.e. \S+\.\S+), so we will still get a WdkModelException down the line
+     * if the record class name is the correct format but does not actually
+     * exist.  We do this because sometimes developers change record class names
+     * in one place but not another and if so, then we want to know about it.
+     * If we mask this mistake with a WdkUserException, we might see bad
+     * consequences down the line.
+     * 
+     * @param recordClassName potential record class name
+     * @throws WdkUserException if name is not in format *.*
+     */
     public void validateRecordClassName(String recordClassName) throws WdkUserException {
-      wdkModel.validateRecordClassName(recordClassName);
+      String message = "The record type '" + recordClassName + "' is not or is no longer available.";
+      try {
+        // First check to see if this is a 'regular' record class; if not, check XML record classes
+        if (recordClassName == null || wdkModel.getRecordClass(recordClassName) == null) {
+          throw new WdkModelException("RecordClass name is null or resulting RecordClass is null");
+        }
+      }
+      catch (WdkModelException e) {
+        try {
+          // exception will be thrown below; will mean that name is neither 'regular' RC nor XML
+          Reference r = new Reference(recordClassName);
+          XmlRecordClassSet xrcs = wdkModel.getXmlRecordClassSet(r.getSetName());
+          xrcs.getRecordClass(r.getElementName());
+        }
+        catch (WdkModelException e2) {
+          throw new WdkUserException(message, e2);
+        }
+      }
     }
 }

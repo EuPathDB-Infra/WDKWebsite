@@ -1,20 +1,22 @@
 package org.gusdb.wdk.model.jspwrap;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.gusdb.fgputil.FormatUtil;
+import org.gusdb.fgputil.functional.TreeNode;
 import org.gusdb.wdk.model.FieldTree;
+import org.gusdb.wdk.model.SelectableItem;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.query.param.AbstractEnumParam;
 import org.gusdb.wdk.model.query.param.EnumParamTermNode;
 import org.gusdb.wdk.model.query.param.EnumParamVocabInstance;
 import org.gusdb.wdk.model.query.param.Param;
-import org.gusdb.wdk.model.user.User;
 import org.json.JSONObject;
 
 /**
@@ -104,12 +106,11 @@ public class EnumParamBean extends ParamBean<AbstractEnumParam> {
   }
 
   @Override
-  public String getDefault() throws WdkModelException {
+  public String getDefault() {
     return getVocabInstance().getDefaultValue();
   }
 
-  // NOTE: not threadsafe! This class is expected only to be used in a single
-  // thread
+  // NOTE: not threadsafe! This class is expected only to be used in a single thread
   protected EnumParamVocabInstance getVocabInstance() {
     if (_cache == null || _dependedValueChanged) {
       _cache = _param.getVocabInstance(_userBean.getUser(), _contextValues);
@@ -140,10 +141,6 @@ public class EnumParamBean extends ParamBean<AbstractEnumParam> {
 
   public Map<String, String> getParentMap() {
     return getVocabInstance().getParentMap();
-  }
-
-  public String getInternalValue(User user, String dependentValue) throws WdkModelException, WdkUserException {
-    return _param.getInternalValue(user, dependentValue, _contextValues);
   }
 
   @Override
@@ -249,19 +246,33 @@ public class EnumParamBean extends ParamBean<AbstractEnumParam> {
    */
   public FieldTree getParamTree() {
     EnumParamTermNode[] rootNodes = getVocabTreeRoots();
-    FieldTree tree = AbstractEnumParam.getParamTree(getName(), rootNodes);
-    AbstractEnumParam.populateParamTree(tree, currentValues);
+    FieldTree tree = getParamTree(getName(), rootNodes);
+    populateParamTree(tree, currentValues);
     logger.debug("param " + getName() + ", stable=" + _stableValue + ", current=" + currentValues);
 
     return tree;
   }
 
-  @Override
-  public void validate(UserBean user, String rawOrDependentValue, Map<String, String> contextValues)
-      throws WdkModelException, WdkUserException {
-    logger.debug("Validating param=" + getName() + ", value=" + rawOrDependentValue + ", dependedValue=" +
-        FormatUtil.prettyPrint(contextValues));
-    _param.validate(user.getUser(), rawOrDependentValue, contextValues);
+  public static FieldTree getParamTree(String treeName, EnumParamTermNode[] rootNodes) {
+    FieldTree tree = new FieldTree(new SelectableItem(treeName, "top"));
+    TreeNode<SelectableItem> root = tree.getRoot();
+    for (EnumParamTermNode paramNode : rootNodes) {
+      if (paramNode.getChildren().length == 0) {
+        root.addChild(new SelectableItem(paramNode.getTerm(), paramNode.getDisplay(), paramNode.getDisplay()));
+      }
+      else {
+        root.addChildNode(paramNode.toFieldTree().getRoot());
+      }
+    }
+    return tree;
+  }
+
+  public static void populateParamTree(FieldTree tree, String[] values) {
+    if (values != null && values.length > 0) {
+      List<String> currentValueList = Arrays.asList(values);
+      tree.setSelectedLeaves(currentValueList);
+      tree.addDefaultLeaves(currentValueList);
+    }
   }
 
   public boolean isSuppressNode() {

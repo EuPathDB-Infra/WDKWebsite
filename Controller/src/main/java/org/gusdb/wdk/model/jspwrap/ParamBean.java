@@ -10,6 +10,7 @@ import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.query.param.Param;
 import org.gusdb.wdk.model.query.param.RequestParams;
+import org.gusdb.wdk.model.query.spec.QueryInstanceSpec;
 
 /**
  * A wrapper on a {@link Param} that provides simplified access for consumption by a view
@@ -56,19 +57,14 @@ public abstract class ParamBean<T extends Param> {
     return _param.getHelp();
   }
 
-	public String getVisibleHelp() {
+  public String getVisibleHelp() {
     return _param.getVisibleHelp();
   }
 
-  public String getDefault() throws WdkModelException {
-    return _param.getDefault();
+  public String getDefault() {
+    return _param.getXmlDefault();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.gusdb.wdk.model.Param#isReadonly()
-   */
   public boolean getIsReadonly() {
     return _param.isReadonly();
   }
@@ -108,14 +104,6 @@ public abstract class ParamBean<T extends Param> {
   }
 
   /**
-   * for controller
-   */
-  public void validate(UserBean user, String rawOrDependentValue, Map<String, String> contextValues)
-      throws WdkModelException, WdkUserException {
-    _param.validate(user.getUser(), rawOrDependentValue, contextValues);
-  }
-
-  /**
    * @throws WdkModelException
    *           if unable to set stable value
    */
@@ -144,25 +132,13 @@ public abstract class ParamBean<T extends Param> {
 
   /**
    * @param user
-   * @param stableValue
-   * @return
-   * @throws WdkUserException
-   * @see org.gusdb.wdk.model.query.param.Param#dependentValueToIndependentValue(org.gusdb.wdk.model.user.User,
-   *      java.lang.String)
-   */
-  public String getSignature(UserBean user, String stableValue, Map<String, String> contextValues)
-      throws WdkModelException, WdkUserException {
-    return _param.getSignature(user.getUser(), stableValue, contextValues);
-  }
-
-  /**
-   * @param user
    * @param independentValue
    * @return
    * @throws WdkUserException
    * @see org.gusdb.wdk.model.query.param.Param#independentValueToRawValue(org.gusdb.wdk.model.user.User,
    *      java.lang.String)
    */
+  @Deprecated
   public String getStableValue(UserBean user, RequestParams requestParams) throws WdkModelException,
       WdkUserException {
     return _param.getStableValue(user.getUser(), requestParams);
@@ -189,7 +165,8 @@ public abstract class ParamBean<T extends Param> {
     return _param.getClass().getSimpleName();
   }
 
-  public Set<String> getAllValues() throws WdkModelException {
+  @Deprecated
+  public Set<String> getAllValues() {
     return _param.getAllValues();
   }
 
@@ -208,18 +185,20 @@ public abstract class ParamBean<T extends Param> {
     _contextValues = contextValues;
   }
 
+  @Deprecated
   public void prepareDisplay(UserBean user, RequestParams requestParams)
       throws WdkModelException, WdkUserException {
     _param.prepareDisplay(user.getUser(), requestParams, _contextValues);
   }
 
+  @Deprecated
   public void prepareDisplay(UserBean user, RequestParams requestParams, Map<String, String> contextValues)
       throws WdkModelException, WdkUserException {
     _param.prepareDisplay(user.getUser(), requestParams, contextValues);
   }
 
   public String getDisplayValue() throws WdkModelException {
-    return _param.getDisplayValue(_userBean.getUser(), _stableValue, _contextValues);
+    return _param.getDisplayValue(QueryInstanceSpec.builder().putAll(_contextValues).buildInvalid());
   }
 
 }

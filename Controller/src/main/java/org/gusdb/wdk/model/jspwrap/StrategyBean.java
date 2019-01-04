@@ -1,9 +1,10 @@
 package org.gusdb.wdk.model.jspwrap;
 
+import static org.gusdb.wdk.model.user.StepContainer.withId;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import org.gusdb.fgputil.FormatUtil;
 import org.gusdb.wdk.model.WdkModelException;
@@ -37,24 +38,12 @@ public class StrategyBean {
     return strategy.getName();
   }
 
-  public void setName(String name) {
-    strategy.setName(name);
-  }
-
   public String getSavedName() {
     return strategy.getSavedName();
   }
 
-  public void setSavedName(String name) {
-    strategy.setSavedName(name);
-  }
-
-  public void setIsSaved(boolean saved) {
-    strategy.setIsSaved(saved);
-  }
-
   public boolean getIsSaved() {
-    return strategy.getIsSaved();
+    return strategy.isSaved();
   }
 
   public String getLastRunTimeFormatted() {
@@ -86,40 +75,29 @@ public class StrategyBean {
   }
 
   public boolean getIsPublic() {
-    return strategy.getIsPublic();
+    return strategy.isPublic();
   }
 
-  public void setIsPublic(boolean isPublic) {
-    strategy.setIsPublic(isPublic);
-  }
-
-  public StepBean getLatestStep() throws WdkModelException {
-    return new StepBean(user, strategy.getLatestStep());
+  public StepBean getLatestStep() {
+    return new StepBean(user, strategy.getRootStep());
   }
 
   public long getLatestStepId() {
-    return strategy.getLatestStepId();
+    return strategy.getRootStepId();
   }
 
   public long getStrategyId() {
     return strategy.getStrategyId();
   }
 
-  public StepBean getStep(int index) throws WdkModelException {
-    return new StepBean(user, strategy.getStep(index));
-  }
-
   public StepBean[] getAllSteps() throws WdkModelException {
-    StepBean latestStep = new StepBean(user, strategy.getLatestStep());
+    StepBean latestStep = new StepBean(user, strategy.getRootStep());
     return latestStep.getMainBranch();
   }
 
-  public void setLatestStep(StepBean step) throws WdkModelException {
-    strategy.setLatestStep(step.step);
-  }
-
   public StepBean getStepById(long stepId) throws WdkModelException {
-    Step target = strategy.getStepById(stepId);
+    Step target = strategy.findFirstStep(withId(stepId)).orElseThrow(
+        () -> new WdkModelException("Step " + stepId + " is not in strategy " + strategy.getStrategyId()));
     if (target != null) {
       return new StepBean(user, target);
     }
@@ -134,24 +112,11 @@ public class StrategyBean {
     strategy.update(overwrite);
   }
 
-  public Map<Long, Long> insertStepAfter(StepBean newStep, long targetId) throws WdkModelException, WdkUserException {
-    return strategy.insertStepAfter(newStep.getStep(), targetId);
-  }
-
-  public  Map<Long, Long> insertStepBefore(StepBean newStep, long targetId) throws WdkModelException,
-      WdkUserException {
-    return strategy.insertStepBefore(newStep.getStep(), targetId);
-  }
-
-  public Map<Long, Long> deleteStep(StepBean step) throws WdkModelException, WdkUserException {
-    return strategy.deleteStep(step.getStep());
-  }
-
   public String getImportId() {
     return strategy.getSignature();
   }
 
-  public StepBean getFirstStep() throws WdkModelException {
+  public StepBean getFirstStep() {
     return new StepBean(user, strategy.getFirstStep());
   }
 
@@ -169,14 +134,6 @@ public class StrategyBean {
 
   /**
    * @return
-   * @see org.gusdb.wdk.model.user.Strategy#setDescription()
-   */
-  public void setDescription(String description) {
-    strategy.setDescription(description);
-  }
-
-  /**
-   * @return
    * @see org.gusdb.wdk.model.user.Strategy#getSignature()
    */
   public String getSignature() {
@@ -185,15 +142,15 @@ public class StrategyBean {
 
   /**
    * @return
-   * @throws WdkModelException 
-   * @see org.gusdb.wdk.model.user.Strategy#getEstimateSize()
+   * @throws WdkModelException
+   * @see org.gusdb.wdk.model.user.Strategy#getEstimatedSize()
    */
   public int getEstimateSize() throws WdkModelException {
-    return strategy.getEstimateSize();
+    return strategy.getResultSize();
   }
 
   public String getEstimateSizeNoCalculate() {
-    return strategy.getEstimateSizeNoCalculate();
+    return strategy.getEstimatedSize();
   }
 
   private String formatDate(Date date) {
@@ -203,19 +160,11 @@ public class StrategyBean {
     return formatter.format(date);
   }
 
-  public boolean isValidBasedOnStepFlags() {
-    return strategy.isValidBasedOnStepFlags();
-  }
-
-  /**
-   * @return
-   * @see org.gusdb.wdk.model.user.Strategy#isValid()
-   */
-  public boolean isValid() throws WdkModelException {
+  public boolean isValid() {
     return strategy.isValid();
   }
 
-  public RecordClassBean getRecordClass() throws WdkModelException {
+  public RecordClassBean getRecordClass() {
     return new RecordClassBean(strategy.getRecordClass());
   }
 
