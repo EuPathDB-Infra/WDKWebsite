@@ -34,8 +34,8 @@ public class ShowQuestionSetsFlatAction extends ShowQuestionSetsAction {
         QuestionForm questionForm = (QuestionForm) form;
         String questionName = questionForm.getQuestionFullName();
         QuestionBean question = wdkModel.getQuestion(questionName);
-        ShowQuestionAction.prepareQuestionForm(question, servlet, request,
-                questionForm);
+        questionForm.setServlet(servlet);
+        ShowQuestionAction.prepareQuestionForm(question, request, questionForm);
 
         ServletContext svltCtx = getServlet().getServletContext();
         String customViewDir = CConstants.WDK_CUSTOM_VIEW_DIR + File.separator

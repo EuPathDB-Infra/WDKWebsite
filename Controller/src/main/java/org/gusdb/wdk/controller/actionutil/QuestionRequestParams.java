@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.upload.FormFile;
 import org.gusdb.wdk.controller.form.QuestionForm;
 import org.gusdb.wdk.model.WdkModelException;
+import org.gusdb.wdk.model.dataset.Dataset;
+import org.gusdb.wdk.model.jspwrap.DatasetBean;
 import org.gusdb.wdk.model.query.param.RequestParams;
 
 public class QuestionRequestParams implements RequestParams {
@@ -75,6 +77,10 @@ public class QuestionRequestParams implements RequestParams {
 
   @Override
   public void setAttribute(String name, Object value) {
+    // hack to keep beans out of wdk-model
+    if (value instanceof Dataset) {
+      value = new DatasetBean((Dataset)value);
+    }
     request.setAttribute(name, value);
   }
 }

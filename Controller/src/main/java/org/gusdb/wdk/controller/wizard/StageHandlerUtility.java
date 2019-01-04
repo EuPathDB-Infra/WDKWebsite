@@ -24,7 +24,7 @@ public class StageHandlerUtility {
         return (StepBean) request.getAttribute(WizardAction.ATTR_STEP);
     }
 
-    public static StepBean getRootStep(HttpServletRequest request, WizardForm wizardForm)
+    public static StepBean getRootStep(HttpServletRequest request, WizardFormIfc wizardForm)
             throws WdkUserException, NumberFormatException, WdkModelException {
         // get current strategy
         String strategyKey = wizardForm.getStrategy();
@@ -55,7 +55,7 @@ public class StageHandlerUtility {
         return rootStep;
     }
 
-    public static StepBean getPreviousStep(HttpServletRequest request, WizardForm wizardForm)
+    public static StepBean getPreviousStep(HttpServletRequest request, WizardFormIfc wizardForm)
             throws NumberFormatException, WdkUserException, WdkModelException {
         StepBean previousStep;
         String action = wizardForm.getAction();

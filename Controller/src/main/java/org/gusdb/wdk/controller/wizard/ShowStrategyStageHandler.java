@@ -7,9 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.ActionServlet;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
-import org.gusdb.wdk.controller.form.WizardForm;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.StepBean;
 import org.gusdb.wdk.model.jspwrap.StrategyBean;
@@ -26,9 +25,9 @@ public class ShowStrategyStageHandler implements StageHandler {
     private static final Logger logger = Logger.getLogger(ShowStrategyStageHandler.class);
 
     @Override
-    public Map<String, Object> execute(ActionServlet servlet,
+    public Map<String, Object> execute(WdkModel wdkModel,
             HttpServletRequest request, HttpServletResponse response,
-            WizardForm wizardForm) throws Exception {
+            WizardFormIfc wizardForm) throws Exception {
         logger.debug("Entering StrategyStageHandler....");
 
         String strStrategyId = request.getParameter(PARAM_IMPORT_STRATEGY);

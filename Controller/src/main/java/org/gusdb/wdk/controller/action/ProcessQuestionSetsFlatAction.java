@@ -32,7 +32,8 @@ public class ProcessQuestionSetsFlatAction extends ShowQuestionAction {
         wdkModel.validateQuestionFullName(questionName);
         QuestionBean wdkQuestion = wdkModel.getQuestion(questionName);
 
-        ShowQuestionAction.prepareQuestionForm(wdkQuestion, servlet, request, qForm);
+        qForm.setServlet(servlet);
+        ShowQuestionAction.prepareQuestionForm(wdkQuestion, request, qForm);
 
         request.setAttribute(CConstants.QUESTIONFORM_KEY, qForm);
         request.setAttribute(CConstants.WDK_QUESTION_KEY, wdkQuestion);

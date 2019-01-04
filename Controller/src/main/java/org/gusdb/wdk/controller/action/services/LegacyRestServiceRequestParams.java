@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.gusdb.fgputil.web.HttpRequestData;
 import org.gusdb.wdk.model.WdkModelException;
+import org.gusdb.wdk.model.dataset.Dataset;
+import org.gusdb.wdk.model.jspwrap.DatasetBean;
 import org.gusdb.wdk.model.query.param.RequestParams;
 
 public class LegacyRestServiceRequestParams implements RequestParams {
@@ -69,6 +71,10 @@ public class LegacyRestServiceRequestParams implements RequestParams {
 
   @Override
   public void setAttribute(String name, Object value) {
+    // hack to keep beans out of wdk-model
+    if (value instanceof Dataset) {
+      value = new DatasetBean((Dataset)value);
+    }
     _request.setAttribute(name, value);
   }
 

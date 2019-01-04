@@ -5,16 +5,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
+import org.gusdb.wdk.controller.wizard.WizardFormIfc;
 
-public class WizardForm extends MapActionForm {
+public class WizardForm extends MapActionForm implements WizardFormIfc {
 
     public static final String ACTION_ADD = "add";
     public static final String ACTION_REVISE = "revise";
     public static final String ACTION_INSERT = "insert";
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 3608316943911485689L;
 
     private String strategyKey;
@@ -25,6 +23,7 @@ public class WizardForm extends MapActionForm {
     /**
      * @return the strategy
      */
+    @Override
     public String getStrategy() {
         return strategyKey;
     }
@@ -39,6 +38,7 @@ public class WizardForm extends MapActionForm {
      * @param strategyKey
      *            the strategy to set
      */
+    @Override
     public void setStrategy(String strategyKey) {
         this.strategyKey = strategyKey;
     }
@@ -76,6 +76,7 @@ public class WizardForm extends MapActionForm {
     /**
      * @return the action
      */
+    @Override
     public String getAction() {
         return (action == null) ? ACTION_ADD : action;
     }

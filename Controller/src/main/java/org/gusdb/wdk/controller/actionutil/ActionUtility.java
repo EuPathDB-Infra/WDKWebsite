@@ -15,6 +15,7 @@ import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
+import org.gusdb.wdk.model.user.User;
 
 /**
  * Heritage methods to access the current user,  model, and request params
@@ -26,11 +27,11 @@ public class ActionUtility {
     public static UserBean getUser(HttpServletRequest request) {
         try {
             HttpSession session = request.getSession();
-            UserBean wdkUser = (UserBean) session.getAttribute(Utilities.WDK_USER_KEY);
-            if (wdkUser == null) {
+            User user = (User)session.getAttribute(Utilities.WDK_USER_KEY);
+            if (user == null) {
               throw new IllegalStateException("No user present on session. This should never happen.");
             }
-            return wdkUser;
+            return new UserBean(user);
         }
         catch (Exception ex) {
             throw new WdkRuntimeException(ex);

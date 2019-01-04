@@ -38,7 +38,7 @@ public class CreateStepAnalysisAction extends WdkAction {
     
     StepAnalysisFactory analysisMgr = getWdkModel().getModel().getStepAnalysisFactory();
     
-    StepAnalysisContext context = StepAnalysisContext.createNewContext(getCurrentUser(),
+    StepAnalysisContext context = StepAnalysisContext.createNewContext(getCurrentUser().getUser(),
         params.getValue(ANALYSIS_NAME_KEY), params.getIntValue(STEP_ID_KEY));
     
     try {

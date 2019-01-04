@@ -21,6 +21,7 @@ import org.gusdb.wdk.controller.wizard.Result;
 import org.gusdb.wdk.controller.wizard.Stage;
 import org.gusdb.wdk.controller.wizard.StageHandler;
 import org.gusdb.wdk.controller.wizard.Wizard;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.StepBean;
@@ -38,14 +39,6 @@ public class WizardAction extends Action {
     public static final String ATTR_STEP = "wdkStep";
     public static final String ATTR_ACTION = "action";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.apache.struts.action.Action#execute(org.apache.struts.action.
-     * ActionMapping, org.apache.struts.action.ActionForm,
-     * javax.servlet.http.HttpServletRequest,
-     * javax.servlet.http.HttpServletResponse)
-     */
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response)
@@ -53,6 +46,7 @@ public class WizardAction extends Action {
         logger.debug("Entering WizardAction.....");
         
         UserBean user = ActionUtility.getUser(request);
+        WdkModel wdkModel = ActionUtility.getWdkModel(servlet).getModel();
         try {
             WizardForm wizardForm = (WizardForm) form;
 
@@ -76,8 +70,11 @@ public class WizardAction extends Action {
             StageHandler handler = stage.getHandler();
             Map<String, Object> attributes;
             if (handler != null) {
-                attributes = handler.execute(servlet, request, response, wizardForm);
-            } else attributes = new HashMap<String, Object>();
+                attributes = handler.execute(wdkModel, request, response, wizardForm);
+            }
+            else {
+              attributes = new HashMap<String, Object>();
+            }
             
             if (!attributes.containsKey(ATTR_ACTION))
                 attributes.put(ATTR_ACTION, wizardForm.getAction());

@@ -7,18 +7,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.ActionServlet;
 import org.gusdb.wdk.controller.action.ShowQuestionAction;
-import org.gusdb.wdk.controller.actionutil.ActionUtility;
 import org.gusdb.wdk.controller.form.QuestionForm;
 import org.gusdb.wdk.controller.form.WizardForm;
+import org.gusdb.wdk.model.WdkModel;
+import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.AnswerParamBean;
 import org.gusdb.wdk.model.jspwrap.ParamBean;
 import org.gusdb.wdk.model.jspwrap.QuestionBean;
 import org.gusdb.wdk.model.jspwrap.StepBean;
-import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.query.param.AnswerParamHandler;
-import org.gusdb.wdk.model.WdkUserException;
 
 public class ShowQuestionStageHandler implements StageHandler {
 
@@ -31,18 +29,17 @@ public class ShowQuestionStageHandler implements StageHandler {
             .getLogger(ShowQuestionStageHandler.class);
 
     @Override
-    public Map<String, Object> execute(ActionServlet servlet,
+    public Map<String, Object> execute(WdkModel wdkModel,
             HttpServletRequest request, HttpServletResponse response,
-            WizardForm wizardForm) throws Exception {
+            WizardFormIfc wizardForm) throws Exception {
         logger.debug("Entering ShowQuestionStageHandler....");
 
-        WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
         String questionName = request.getParameter(PARAM_QUESTION_NAME);
         if (questionName == null || questionName.length() == 0)
             throw new WdkUserException("Required param " + PARAM_QUESTION_NAME
                     + " is missing.");
 
-        QuestionBean question = wdkModel.getQuestion(questionName);
+        QuestionBean question = new QuestionBean(wdkModel.getQuestion(questionName));
 
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(ATTR_QUESTION, question);
@@ -88,8 +85,7 @@ public class ShowQuestionStageHandler implements StageHandler {
         logger.debug("Preparing form for question: " + questionName);
         QuestionForm questionForm = new QuestionForm();
         questionForm.copyFrom(wizardForm);
-        ShowQuestionAction.prepareQuestionForm(question, servlet, request,
-                questionForm);
+        ShowQuestionAction.prepareQuestionForm(question, request, questionForm);
         wizardForm.copyFrom(questionForm);
         logger.debug("wizard form: " + wizardForm);
 
@@ -102,7 +98,7 @@ public class ShowQuestionStageHandler implements StageHandler {
         attributes.put(ATTR_ALLOW_BOOLEAN, allowBoolean);
 
         // check the custom form
-        ShowQuestionAction.checkCustomForm(servlet, request, question);
+        ShowQuestionAction.checkCustomForm(wizardForm.getServletContext(), request, question);
 
         logger.debug("Leaving ShowQuestionStageHandler....");
         return attributes;
