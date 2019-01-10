@@ -31,6 +31,7 @@ public enum ResponseType {
 
   /* document types */
   text           ("text/plain", "file", ".txt"),
+  csv            ("text/csv", "file", ".csv"),
   tab_delim_text ("text/tab-separated-values", "file", ".tab"),
   excel          ("application/vnd.ms-excel", "spreadsheet", ".xls"),
   pdf            ("application/pdf", "document", ".pdf"),
