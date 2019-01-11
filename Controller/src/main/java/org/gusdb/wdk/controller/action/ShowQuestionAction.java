@@ -67,9 +67,8 @@ public class ShowQuestionAction extends Action {
     return newLabels;
   }
 
-  public static void checkCustomForm(ActionServlet servlet, HttpServletRequest request,
+  public static void checkCustomForm(ServletContext svltCtx, HttpServletRequest request,
       QuestionBean wdkQuestion) {
-    ServletContext svltCtx = servlet.getServletContext();
 
     String baseFilePath = CConstants.WDK_CUSTOM_VIEW_DIR + File.separator + CConstants.WDK_PAGES_DIR +
         File.separator + CConstants.WDK_QUESTIONS_DIR;
@@ -93,15 +92,14 @@ public class ShowQuestionAction extends Action {
 
   }
 
-  public static void prepareQuestionForm(QuestionBean wdkQuestion, ActionServlet servlet,
-      HttpServletRequest request, QuestionForm qForm) throws WdkUserException, WdkModelException {
+  public static void prepareQuestionForm(QuestionBean wdkQuestion,
+      HttpServletRequest request, QuestionForm qForm)
+          throws WdkUserException, WdkModelException {
     LOG.trace("Entering prepareQustionForm()");
 
     // get the current user
     UserBean user = ActionUtility.getUser(request);
     wdkQuestion.setUser(user);
-
-    qForm.setServlet(servlet);
     qForm.setQuestion(wdkQuestion);
 
     boolean hasAllParams = true;
@@ -155,7 +153,8 @@ public class ShowQuestionAction extends Action {
     ActionUtility.getWdkModel(servlet).validateQuestionFullName(qFullName);
     QuestionBean wdkQuestion = getQuestionBean(qFullName);
 
-    prepareQuestionForm(wdkQuestion, servlet, request, qForm);
+    qForm.setServlet(servlet);
+    prepareQuestionForm(wdkQuestion, request, qForm);
     setParametersAsAttributes(request);
 
     return determineView(servlet, request, wdkQuestion, qForm, mapping);
@@ -171,7 +170,7 @@ public class ShowQuestionAction extends Action {
 
   private static ActionForward determineView(ActionServlet servlet, HttpServletRequest request,
       QuestionBean wdkQuestion, QuestionForm qForm, ActionMapping mapping) {
-    checkCustomForm(servlet, request, wdkQuestion);
+    checkCustomForm(servlet.getServletContext(), request, wdkQuestion);
     ActionForward forward = new ActionForward(DEFAULT_VIEW_FILE);
     if (qForm.getParamsFilled() && "1".equals(request.getParameter(CConstants.GOTO_SUMMARY_PARAM))) {
       forward = mapping.findForward(CConstants.SKIPTO_SUMMARY_MAPKEY);

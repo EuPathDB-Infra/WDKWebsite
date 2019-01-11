@@ -81,7 +81,7 @@ public class GetVocabAction extends Action {
   
   protected QuestionBean getQuestion(HttpServletRequest request, WdkModelBean wdkModel) throws WdkUserException, WdkModelException {
       String qFullName = request.getParameter(CConstants.QUESTION_FULLNAME_PARAM);
-      wdkModel.validateQuestionFullName(qFullName);
+      wdkModel.getModel().validateQuestionFullName(qFullName);
       QuestionBean question = wdkModel.getQuestion(qFullName);
       return question;
   }

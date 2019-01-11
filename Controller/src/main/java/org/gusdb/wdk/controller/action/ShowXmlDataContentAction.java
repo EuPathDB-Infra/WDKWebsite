@@ -44,7 +44,6 @@ public class ShowXmlDataContentAction extends Action {
     String qSetName = qFullName.substring(0, dotI);
     String qName = qFullName.substring(dotI+1, qFullName.length());
 
-    //WdkModelBean wdkModel = (WdkModelBean)getServlet().getServletContext().getAttribute(CConstants.WDK_MODEL_KEY);
     WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
 
     XmlQuestionSetBean wdkQuestionSet = wdkModel.getXmlQuestionSetsMap().get(qSetName);

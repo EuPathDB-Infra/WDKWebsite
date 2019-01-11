@@ -5,11 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
+import org.gusdb.wdk.controller.wizard.MapActionFormIfc;
 import org.gusdb.wdk.model.Utilities;
 
-public abstract class MapActionForm extends ActionForm {
+public abstract class MapActionForm extends ActionForm implements MapActionFormIfc {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(MapActionForm.class.getName());
@@ -17,13 +20,25 @@ public abstract class MapActionForm extends ActionForm {
     protected Map<String, Object> _values = new LinkedHashMap<String, Object>();
     protected Map<String, String[]> _arrays = new LinkedHashMap<String, String[]>();
 
+    @Override
+    public Map<String, Object> getValues() {
+      return _values;
+    }
+
+    @Override
     public Object getValue(String key) {
         return _values.get(key);
     }
 
+    @Override
     public void setValue(String key, Object value) {
         LOG.trace("set value: key=[" + key + "] value=[" + value + "]");
         _values.put(key, value);
+    }
+
+    @Override
+    public Map<String, String[]> getArrays() {
+      return _arrays;
     }
 
     public String[] getArray(String key) {
@@ -40,6 +55,7 @@ public abstract class MapActionForm extends ActionForm {
         _arrays.put(key, values.toArray(new String[0]));
     }
 
+  @Override
   public Object getValueOrArray(String key) {
     // in the case some params set value into array, we need to get it from array too.
     Object value = _values.get(key);
@@ -60,15 +76,19 @@ public abstract class MapActionForm extends ActionForm {
     return value;
   }
 
-    public void copyFrom(MapActionForm form) {
+    public void copyFrom(MapActionFormIfc form) {
+
+        // total kluge here to copy the ActionServlet from one form to another
+        setServlet(((MapActionForm)form).getServlet());
+
         _values.clear();
-        for (String key : form._values.keySet()) {
-            _values.put(key, form._values.get(key));
+        for (String key : form.getValues().keySet()) {
+            _values.put(key, form.getValues().get(key));
         }
 
         _arrays.clear();
-        for (String key : form._arrays.keySet()) {
-            _arrays.put(key, form._arrays.get(key));
+        for (String key : form.getArrays().keySet()) {
+            _arrays.put(key, form.getArrays().get(key));
         }
     }
 
@@ -96,5 +116,10 @@ public abstract class MapActionForm extends ActionForm {
                     + "]\n");
         }
         return builder.toString();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+      return getServlet().getServletContext();
     }
 }

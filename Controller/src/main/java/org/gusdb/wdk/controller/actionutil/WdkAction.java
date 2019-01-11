@@ -301,8 +301,8 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
   private void assignAttributesToRequest(ActionResult result) throws WdkModelException {
     // assign the current request URL for access by the resulting page
     _request.setAttribute(CConstants.WDK_REFERRER_URL_KEY, getRequestData().getReferrer());
-    _request.setAttribute(Utilities.WDK_USER_KEY, getCurrentUser());
-    _request.setAttribute(Utilities.WDK_MODEL_KEY, getWdkModel());
+    _request.setAttribute(Utilities.WDK_USER_BEAN_KEY, getCurrentUser());
+    _request.setAttribute(Utilities.WDK_MODEL_BEAN_KEY, getWdkModel());
     for (String attribKey : result) {
       _request.setAttribute(attribKey, result.getRequestAttribute(attribKey));
     }
@@ -412,17 +412,7 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
       return null;
     }
   }
-  
-  /**
-   * Sets the current user.  This method should only be called by login and
-   * logout operations.
-   * 
-   * @param user new user for this session
-   */
-  protected void setCurrentUser(UserBean user) {
-    setSessionAttribute(Utilities.WDK_USER_KEY, user);
-  }
-  
+
   /**
    * Sets an attribute on the session
    * 

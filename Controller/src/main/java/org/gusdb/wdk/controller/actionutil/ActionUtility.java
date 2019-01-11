@@ -8,9 +8,7 @@ import java.util.Map.Entry;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.gusdb.wdk.controller.WdkInitializer;
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.jspwrap.UserBean;
@@ -25,12 +23,11 @@ public class ActionUtility {
 
     public static UserBean getUser(HttpServletRequest request) {
         try {
-            HttpSession session = request.getSession();
-            UserBean wdkUser = (UserBean) session.getAttribute(Utilities.WDK_USER_KEY);
-            if (wdkUser == null) {
+            UserBean user = (UserBean)request.getSession().getAttribute(Utilities.WDK_USER_BEAN_KEY);
+            if (user == null) {
               throw new IllegalStateException("No user present on session. This should never happen.");
             }
-            return wdkUser;
+            return user;
         }
         catch (Exception ex) {
             throw new WdkRuntimeException(ex);
@@ -38,7 +35,7 @@ public class ActionUtility {
     }
 
     public static WdkModelBean getWdkModel(HttpServlet servlet) {
-        return new WdkModelBean(WdkInitializer.getWdkModel(servlet.getServletContext()));
+        return (WdkModelBean)servlet.getServletContext().getAttribute(Utilities.WDK_MODEL_BEAN_KEY);
     }
 
     public static Map<String, String> getParams(ServletRequest request) {
