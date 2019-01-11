@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 import { Provider } from 'react-redux';
 
+import { PluginContext, makeCompositePluginComponent } from 'wdk-client/Utils/ClientPlugin';
+
 import {
   Controllers as WdkControllers,
   initialize as initializeWdk,
@@ -97,7 +99,13 @@ wdk.namespace('wdk', ns => {
                 React.createElement(
                   Router,
                   { history: context.history },
-                  React.createElement(ViewController as any, { ...props, ...context, ref: viewControllerRef })
+                  React.createElement(
+                    PluginContext.Provider,
+                    {
+                      value: makeCompositePluginComponent(context.pluginConfig)
+                    },
+                    React.createElement(ViewController as any, { ...props, ref: viewControllerRef })
+                  )
                 )
               )
             ), el)
