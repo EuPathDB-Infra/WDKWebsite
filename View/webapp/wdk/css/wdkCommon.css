@@ -1221,42 +1221,7 @@ tr.headerRow th {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 
-.histogram .plot { width:700px; height:400px; margin:0px auto 70px auto; }
-.histogram .plot-container { position: relative; }
-.histogram .y-axis-label { font-weight: bold; position: absolute; transform-origin: bottom left; transform: rotate(270deg); bottom: 0; left: 20px; width: 50%; text-align: center; }
-.histogram .x-axis-label { font-weight: bold; position: absolute; bottom: -60px; right: 50%; }
-.histogram .distribution { position: absolute; left: 50%; bottom: -60px; margin: 0; }
-.histogram .distribution dt, .histogram .distribution dd { display: inline-block; margin: 0; }
-.histogram .distribution dt { font-weight: bold; margin-left: 1em; }
-.histogram .plot .flot-x-axis .flot-tick-label { margin:5px 0px 0px 0px; white-space: nowrap; background: white; font-size: 1.1em; padding: 0 1px; }
-.histogram #data .data { display:none; }
-.histogram .control-panel { margin: 5px; padding:7px 5px 5px 7px; background:#EEE; }
-.histogram .control-panel-section { display: flex; justify-content: space-between; margin: 1em 0; }
-.histogram .bin-count, .histogram .bin-size { width: 8em; }
-.histogram .bin-size-slider, .histogram .bin-count-slider { width: 40em; margin: auto; }
-.histogram .input-label { display: inline-block; width: 8em; text-align: right; }
-.histogram .update { text-align:center; }
-
 #flot-tooltip { position:absolute; display:block; border:1px solid #fdd; padding:3px; border-radius:3px; background-color:#ffe; z-index:100000000000; }
-
-
-#word-cloud #tags, #word-cloud #word-order, #word-cloud #count-order { display: none; }
-#word-cloud .help { color: #666666; font-size: smaller; font-style:italic; text-align: center; vertical-align: top; }
-#word-cloud th { border-width: 0px; }
-#word-cloud input[name=from], #word-cloud input[name=to] { text-align: right; height: 15px; }
-#word-cloud #amount { width: 400px; }
-#word-cloud #layout {
-  border: 1px solid #666666;
-  background-color: #FFFFFF;
-  margin: 2px; padding: 5px;
-}
-#word-cloud #layout .word {
-  padding: 0px 2px 0px 2px;
-}
-#word-cloud #layout .word { padding: 2px; }
-#word-cloud .word-cloud-error { padding: .4em; }
-
-
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       = RESULT PAGE and basket title and links
