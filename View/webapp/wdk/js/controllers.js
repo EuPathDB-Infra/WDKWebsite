@@ -5,7 +5,6 @@ import './controllers/dyk';
 import './controllers/favorite';
 import './controllers/filter';
 import './controllers/formUtil';
-// import './controllers/histogram';
 import './controllers/history';
 import './controllers/publicStrats';
 import './controllers/question';
@@ -18,5 +17,4 @@ import './controllers/strategy/error';
 import './controllers/strategy/model';
 import './controllers/strategy/view';
 import './controllers/stratTabCookie';
-import './controllers/wordCloud';
 
