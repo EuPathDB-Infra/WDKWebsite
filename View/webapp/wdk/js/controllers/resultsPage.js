@@ -411,42 +411,12 @@ wdk.namespace("window.wdk.resultsPage", function(ns, $) {
     return $(element).attr("dialog");
   }
 
-  function invokeAttributePlugin(ele, stepId, attributeName) {
-    var pluginName = $(ele).attr("plugin");
-    var title = $(ele).attr("plugintitle");
-    var url = "invokeAttributePlugin.do?step=" + stepId +
-        "&attribute=" + attributeName + "&plugin=" + pluginName;
-    $.ajax({
-      url: url,
-      dataType: "html",
-      beforeSend: function() {
-        $.blockUI();
-      },
-      success: function(data) {
-        $.unblockUI();
-        // create a place holder for the result
-        if ($("#attribute-plugin-result").length === 0) {
-          $("body").append("<div id=\"attribute-plugin-result\"> </div>");
-        }
-        $("#attribute-plugin-result")
-          .html(data)
-          .dialog({
-            width : 825,
-            maxHeight: 800,
-            title : title,
-            modal : true
-          });
-      }
-    });
-  }
-
   ns.getResultsPage = getResultsPage;
   ns.resultsToGrid = resultsToGrid;
   ns.closeAdvancedPaging = closeAdvancedPaging;
   ns.configureSummaryViews = configureSummaryViews;
   ns.createFlexigridFromTable = createFlexigridFromTable;
   ns.gotoPage = gotoPage;
-  ns.invokeAttributePlugin = invokeAttributePlugin;
   ns.openAdvancedPaging = openAdvancedPaging;
   ns.openAttributeList = openAttributeList;
   ns.removeAttribute = removeAttribute;
