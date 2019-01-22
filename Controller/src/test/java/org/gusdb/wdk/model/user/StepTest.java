@@ -13,8 +13,7 @@ import org.junit.Test;
  */
 public class StepTest {
 
-  public static void compareStep(Step expectedStep, Step actualStep) throws WdkModelException,
-      WdkUserException {
+  public static void compareStep(Step expectedStep, Step actualStep) throws WdkModelException {
     Assert.assertEquals("step id", expectedStep.getStepId(), actualStep.getStepId());
     Assert.assertEquals("valid", expectedStep.isValid(), actualStep.isValid());
     Assert.assertEquals("custom name", expectedStep.getCustomName(), actualStep.getCustomName());
@@ -90,15 +89,6 @@ public class StepTest {
     Step loadedStep = StepUtilities.getStep(user, step.getStepId());
 
     compareStep(step, loadedStep);
-  }
-
-  @Test
-  public void testGetInvalidSteps() throws Exception {
-    Step[] invalidStep = StepUtilities.getInvalidSteps(user);
-    for (Step step : invalidStep) {
-      Assert.assertNotNull("question name", step.getQuestionName());
-      Assert.assertNotNull("params", step.getParamValues());
-    }
   }
 
   @Test

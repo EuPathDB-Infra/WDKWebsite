@@ -16,7 +16,7 @@ import org.junit.Test;
 
 /**
  * @author xingao
- * 
+ *
  */
 public class StrategyTest {
 
@@ -37,7 +37,7 @@ public class StrategyTest {
 
     Assert.assertEquals("strategy count", strategyCount + 1, stepFactory.getStrategyCount(user.getUserId()));
 
-    Step root = strategy.getLatestStep();
+    Step root = strategy.getRootStep();
     StepTest.compareStep(step, root);
   }
 
@@ -46,7 +46,7 @@ public class StrategyTest {
     String strategyName = "My Strategy";
 
     Step step = UnitTestHelper.createNormalStep(user);
-    Strategy strategy = StepUtilities.createStrategy(step, strategyName, false);
+    Strategy strategy = StepUtilities.createStrategy(step, false, strategyName);
 
     Assert.assertEquals("strategy name", strategyName, strategy.getName());
   }
@@ -120,12 +120,12 @@ public class StrategyTest {
     Step booleanStep = StepUtilities.createBooleanStep(user, strategy.getStrategyId(), step1, step2, operator, null);
 
     strategy.insertStepAfter(booleanStep, step1.getStepId());
-    Step rootStep = strategy.getLatestStep();
+    Step rootStep = strategy.getRootStep();
     StepTest.compareStep(booleanStep, rootStep);
-    StepTest.compareStep(step1, rootStep.getPreviousStep());
-    StepTest.compareStep(step2, rootStep.getChildStep());
-    StepTest.compareStep(rootStep, rootStep.getPreviousStep().getNextStep());
-    StepTest.compareStep(rootStep, rootStep.getChildStep().getParentStep());
+    StepTest.compareStep(step1, rootStep.getPrimaryInputStep());
+    StepTest.compareStep(step2, rootStep.getSecondaryInputStep());
+    StepTest.compareStep(rootStep, rootStep.getPrimaryInputStep().getNextStep());
+    StepTest.compareStep(rootStep, rootStep.getSecondaryInputStep().getParentStep());
   }
 
   @Test
@@ -150,9 +150,9 @@ public class StrategyTest {
     }
     while (filter != null && filter.getName().equals(newFilter.getName()));
     oldStep.setFilterName(newFilter.getName());
-    oldStep.saveParamFilters();
+    oldStep.writeParamFiltersToDb();
     Step newStep = strategy.getStepById(oldStep.getStepId());
-    StepTest.compareStep(newStep, strategy.getLatestStep());
+    StepTest.compareStep(newStep, strategy.getRootStep());
   }
 
   @Test
@@ -173,10 +173,10 @@ public class StrategyTest {
     }
     while (oldFilter != null && oldFilter.getName().equals(newFilter.getName()));
     oldStep.setFilterName(newFilter.getName());
-    oldStep.saveParamFilters();
+    oldStep.writeParamFiltersToDb();
 
     Step newStep = strategy.getStepById(oldStep.getStepId());
-    StepTest.compareStep(newStep, strategy.getLatestStep());
+    StepTest.compareStep(newStep, strategy.getRootStep());
   }
 
   @Test
@@ -206,8 +206,8 @@ public class StrategyTest {
     step2.setFilterName(newFilter.getName());
     Step newBooleanStep = strategy.getStepById(oldBooleanStep.getStepId());
 
-    StepTest.compareStep(newBooleanStep, strategy.getLatestStep());
-    StepTest.compareStep(step2, strategy.getLatestStep().getChildStep());
+    StepTest.compareStep(newBooleanStep, strategy.getRootStep());
+    StepTest.compareStep(step2, strategy.getRootStep().getSecondaryInputStep());
   }
 
   @Test
@@ -244,13 +244,13 @@ public class StrategyTest {
 
     // change the filter of step2
     step2.setFilterName(newFilter.getName());
-    Step root = strategy.getLatestStep();
-    Step newMiddleStep1 = strategy.getStepById(root.getPreviousStepId());
+    Step root = strategy.getRootStep();
+    Step newMiddleStep1 = strategy.getStepById(root.getPrimaryInputStepId());
 
-    StepTest.compareStep(newMiddleStep1, root.getPreviousStep());
-    StepTest.compareStep(step3, root.getChildStep());
-    StepTest.compareStep(step2, root.getPreviousStep().getChildStep());
-    StepTest.compareStep(step1, root.getPreviousStep().getPreviousStep());
+    StepTest.compareStep(newMiddleStep1, root.getPrimaryInputStep());
+    StepTest.compareStep(step3, root.getSecondaryInputStep());
+    StepTest.compareStep(step2, root.getPrimaryInputStep().getSecondaryInputStep());
+    StepTest.compareStep(step1, root.getPrimaryInputStep().getPrimaryInputStep());
   }
 
   @Test
@@ -259,7 +259,7 @@ public class StrategyTest {
     for (String category : strategies.keySet()) {
       for (Strategy strategy : strategies.get(category)) {
         Assert.assertEquals(category, strategy.getRecordClass().getFullName());
-        Assert.assertTrue(strategy.getIsSaved());
+        Assert.assertTrue(strategy.isSaved());
         Assert.assertFalse(strategy.isDeleted());
       }
     }
@@ -271,7 +271,7 @@ public class StrategyTest {
     for (String category : strategies.keySet()) {
       for (Strategy strategy : strategies.get(category)) {
         Assert.assertEquals(category, strategy.getRecordClass().getFullName());
-        Assert.assertFalse(strategy.getIsSaved());
+        Assert.assertFalse(strategy.isSaved());
         Assert.assertFalse(strategy.isDeleted());
         System.err.println("#" + strategy.getStrategyId() + ": " + strategy.getLastRunTime());
       }
@@ -287,7 +287,7 @@ public class StrategyTest {
     for (String category : strategies.keySet()) {
       for (Strategy strategy : strategies.get(category)) {
         Assert.assertEquals(category, strategy.getRecordClass().getFullName());
-        Assert.assertFalse(strategy.getIsSaved());
+        Assert.assertFalse(strategy.isSaved());
         Assert.assertFalse(strategy.isDeleted());
 
         Date date = strategy.getLastRunTime();
@@ -325,11 +325,11 @@ public class StrategyTest {
         booleanFilter);
     strategy.insertStepAfter(middleStep3, middleStep1.getStepId());
 
-    Step root = strategy.getLatestStep();
-    StepTest.compareStep(step3, root.getChildStep());
-    StepTest.compareStep(step4, root.getPreviousStep().getChildStep());
-    StepTest.compareStep(step2, root.getPreviousStep().getPreviousStep().getChildStep());
-    StepTest.compareStep(step1, root.getPreviousStep().getPreviousStep().getPreviousStep().getPreviousStep());
+    Step root = strategy.getRootStep();
+    StepTest.compareStep(step3, root.getSecondaryInputStep());
+    StepTest.compareStep(step4, root.getPrimaryInputStep().getSecondaryInputStep());
+    StepTest.compareStep(step2, root.getPrimaryInputStep().getPrimaryInputStep().getSecondaryInputStep());
+    StepTest.compareStep(step1, root.getPrimaryInputStep().getPrimaryInputStep().getPrimaryInputStep().getPrimaryInputStep());
   }
 
   @Test
@@ -370,6 +370,6 @@ public class StrategyTest {
 
     // compare the steps
     Assert.assertEquals("steps count", expected.getMainBranch().size(), actual.getMainBranch().size());
-    StepTest.compareStep(expected.getLatestStep(), actual.getLatestStep());
+    StepTest.compareStep(expected.getRootStep(), actual.getRootStep());
   }
 }
