@@ -52,7 +52,8 @@ public class ResultTablePaging {
       return pageSize;
   }
 
-  public static Map<String, Object> processPaging(Map<String, String[]> params, QuestionBean question, UserBean user, AnswerValueBean answerValue)
+  public static Map<String, Object> processPaging(Map<String, String[]> params,
+          QuestionBean question, UserBean user, AnswerValueBean answerValue)
           throws WdkModelException, WdkUserException {
       int start = getPageStart(params);
       int pageSize = getPageSize(params, question, user);
