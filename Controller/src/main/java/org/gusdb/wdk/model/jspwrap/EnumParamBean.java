@@ -52,10 +52,6 @@ public class EnumParamBean extends ParamBean<AbstractEnumParam> {
     return _param.getQuote();
   }
 
-  public boolean isSkipValidation() {
-    return _param.isSkipValidation();
-  }
-
   public String getDisplayType() {
     return _param.getDisplayType();
   }
@@ -107,7 +103,7 @@ public class EnumParamBean extends ParamBean<AbstractEnumParam> {
 
   @Override
   public String getDefault() {
-    return getVocabInstance().getDefaultValue();
+    return _param.getDefault(getVocabInstance());
   }
 
   // NOTE: not threadsafe! This class is expected only to be used in a single thread
