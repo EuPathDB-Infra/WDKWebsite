@@ -46,6 +46,7 @@
 .filter-layout .layout-detail {
     overflow-x:scroll; 
     overflow-y:hidden;
+    padding-bottom: 12px;
 }
 .filter-layout .layout-detail .description {
     color: #333333;
