@@ -13,7 +13,6 @@ import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.question.Question;
-import org.gusdb.wdk.model.user.Step;
 import org.gusdb.wdk.model.user.User;
 
 /**
@@ -39,8 +38,8 @@ public class SummaryTableUpdateProcessor {
     return values[0];
   }
 
-  public static String processUpdates(Step step, Map<String, String[]> params,
-      User user, WdkModel model, String preferenceSuffix) throws WdkModelException {
+  public static String processUpdates(Question question, Map<String, String[]> params,
+      User user, String preferenceSuffix) throws WdkModelException {
 
     logger.info("Applying summary table preference changes with suffix '" + preferenceSuffix + "' and params: " +
         FormatUtil.paramsToString(params));
@@ -51,7 +50,7 @@ public class SummaryTableUpdateProcessor {
       String sortingOrder = getFirstValueOrNull(params.get(PARAM_SORT_ORDER));
       String pagerOffset = getFirstValueOrNull(params.get(PARAM_PAGER_OFFSET));
 
-      Question question = step.getAnswerSpec().getQuestion();
+      WdkModel model = question.getWdkModel();
       String questionName = question.getFullName();
 
       // handle sorting

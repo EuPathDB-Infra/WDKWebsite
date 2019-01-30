@@ -138,11 +138,11 @@ public class WdkModelBean implements ConnectionContainer {
      * @return Map of questionSetName --> {@link QuestionSetBean}
      */
     public Map<String, QuestionSetBean> getQuestionSetsMap() {
-        Map<String, QuestionSet> qSets = wdkModel.getQuestionSets();
+        QuestionSet[] qSets = wdkModel.getAllQuestionSets();
         Map<String, QuestionSetBean> qSetBeans = new LinkedHashMap<String, QuestionSetBean>();
-        for (String qSetKey : qSets.keySet()) {
-            QuestionSetBean qSetBean = new QuestionSetBean(qSets.get(qSetKey));
-            qSetBeans.put(qSetKey, qSetBean);
+        for (QuestionSet qSet : qSets) {
+            QuestionSetBean qSetBean = new QuestionSetBean(qSet);
+            qSetBeans.put(qSet.getName(), qSetBean);
         }
         return qSetBeans;
     }

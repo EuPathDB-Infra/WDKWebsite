@@ -8,10 +8,9 @@ import java.util.Map;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModelException;
-import org.gusdb.wdk.model.WdkUserException;
-import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
-import org.gusdb.wdk.model.jspwrap.QuestionBean;
-import org.gusdb.wdk.model.jspwrap.UserBean;
+import org.gusdb.wdk.model.answer.AnswerValue;
+import org.gusdb.wdk.model.question.Question;
+import org.gusdb.wdk.model.user.User;
 
 public class ResultTablePaging {
 
@@ -26,8 +25,8 @@ public class ResultTablePaging {
   }
 
   public static int getPageSize(Map<String, String[]> params,
-          QuestionBean question, UserBean user) throws WdkModelException {
-      int pageSize = user.getItemsPerPage();
+          Question question, User user) throws WdkModelException {
+      int pageSize = user.getPreferences().getItemsPerPage();
       // check if the question is supposed to make answers containing all
       // records in one page
       if (question.isFullAnswer()) {
@@ -37,8 +36,8 @@ public class ResultTablePaging {
           String[] pageSizeKey = params.get(CConstants.WDK_PAGE_SIZE_KEY);
           if (pageSizeKey != null) {
               pageSize = Integer.parseInt(pageSizeKey[0]);
-              user.setItemsPerPage(pageSize);
-              question.getQuestion().getWdkModel().getUserFactory().savePreferences(user.getUser());
+              user.getPreferences().setItemsPerPage(pageSize);
+              question.getWdkModel().getUserFactory().savePreferences(user);
           }
           else {
               String[] altPageSizeKey = params.get(CConstants.WDK_ALT_PAGE_SIZE_KEY);
@@ -53,11 +52,11 @@ public class ResultTablePaging {
   }
 
   public static Map<String, Object> processPaging(Map<String, String[]> params,
-          QuestionBean question, UserBean user, AnswerValueBean answerValue)
-          throws WdkModelException, WdkUserException {
+          Question question, User user, AnswerValue answerValue)
+          throws WdkModelException {
       int start = getPageStart(params);
       int pageSize = getPageSize(params, question, user);
-      int totalSize = answerValue.getResultSize();
+      int totalSize = answerValue.getResultSizeFactory().getResultSize();
 
       if (start > totalSize) {
           int pages = totalSize / pageSize;

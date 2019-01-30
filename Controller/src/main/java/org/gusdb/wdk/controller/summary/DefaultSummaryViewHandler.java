@@ -2,32 +2,32 @@ package org.gusdb.wdk.controller.summary;
 
 import java.util.Map;
 
-import org.gusdb.wdk.model.WdkModel;
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.answer.SummaryViewHandler;
+import org.gusdb.wdk.model.answer.factory.AnswerValueFactory;
+import org.gusdb.wdk.model.answer.spec.AnswerSpec;
 import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
-import org.gusdb.wdk.model.jspwrap.StepBean;
-import org.gusdb.wdk.model.jspwrap.UserBean;
-import org.gusdb.wdk.model.user.Step;
+import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.user.User;
 
 public class DefaultSummaryViewHandler implements SummaryViewHandler {
 
   @Override
-  public Map<String, Object> process(Step step, Map<String, String[]> parameters, User user, WdkModel model)
-      throws WdkModelException, WdkUserException {
-    UserBean userBean = new UserBean(user);
-    StepBean stepBean = new StepBean(userBean, step);
-    AnswerValueBean answer = stepBean.getViewAnswerValue();
+  public Map<String, Object> process(RunnableObj<AnswerSpec> answerSpec, Map<String, String[]> parameters,
+      User user) throws WdkModelException, WdkUserException {
+    AnswerValueBean answer = new AnswerValueBean(AnswerValueFactory.makeAnswer(user, answerSpec));
     answer.getRecords();
-    return ResultTablePaging.processPaging(parameters, stepBean.getQuestion(), userBean, answer);
+    return ResultTablePaging.processPaging(parameters,
+        answerSpec.getObject().getQuestion(), user, answer.getAnswerValue());
   }
 
   @Override
-  public String processUpdate(Step step, Map<String, String[]> parameters, User user, WdkModel wdkModel)
+  public String processUpdate(RunnableObj<AnswerSpec> answerSpec, Map<String, String[]> parameters, User user)
       throws WdkModelException, WdkUserException {
-    return SummaryTableUpdateProcessor.processUpdates(step, parameters, user, wdkModel, "");
+    Question question = answerSpec.getObject().getQuestion();
+    return SummaryTableUpdateProcessor.processUpdates(question, parameters, user, "");
   }
 
 }
