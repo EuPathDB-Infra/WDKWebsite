@@ -7,7 +7,7 @@ import org.gusdb.wdk.controller.actionutil.ActionResult;
 import org.gusdb.wdk.controller.actionutil.ParamDef;
 import org.gusdb.wdk.controller.actionutil.ParamGroup;
 import org.gusdb.wdk.controller.actionutil.WdkAction;
-import org.gusdb.wdk.model.jspwrap.RecordClassBean;
+import org.gusdb.wdk.model.record.RecordClass;
 
 /**
  * Redirect the browser to the SOA Record Page. This simply maps urls, without
@@ -33,12 +33,12 @@ public class RecordPageAdapter extends WdkAction {
   @Override
   protected ActionResult handleRequest(ParamGroup params) throws Exception {
     String recordClassRef = params.getValue(PARAM_RECORD_CLASS_NAME);
-    RecordClassBean recordClass = getWdkModel().findRecordClass(recordClassRef);
+    RecordClass recordClass = getWdkModel().getModel().getRecordClass(recordClassRef);
     String url = getWebAppRoot() + "/app" + createUrl(recordClass, params.getParamMap());
     return new ActionResult().setExternalPath(url);
   }
   
-  public static String createUrl(RecordClassBean recordClass, Map<String, String[]> params) {
+  public static String createUrl(RecordClass recordClass, Map<String, String[]> params) {
     String path = "/record/" + recordClass.getUrlSegment();
     Set<String> paramKeys = params.keySet();
     paramKeys.remove(PARAM_RECORD_CLASS_NAME);
@@ -50,7 +50,7 @@ public class RecordPageAdapter extends WdkAction {
 
     // treat each query param as a part of the primary key
     else {
-      for (String key: recordClass.getPrimaryKeyColumns()) {
+      for (String key: recordClass.getPrimaryKeyDefinition().getColumnRefs()) {
         if (params.containsKey(key))
           path += "/" + params.get(key)[0];
       }

@@ -2,24 +2,15 @@ package org.gusdb.wdk.model.jspwrap;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-import java.util.Vector;
 
 import org.gusdb.wdk.model.Reference;
 import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.dbms.ConnectionContainer;
-import org.gusdb.wdk.model.query.param.Param;
-import org.gusdb.wdk.model.query.param.ParamSet;
-import org.gusdb.wdk.model.question.QuestionSet;
-import org.gusdb.wdk.model.question.SearchCategory;
-import org.gusdb.wdk.model.record.RecordClass;
-import org.gusdb.wdk.model.record.RecordClassSet;
+import org.gusdb.wdk.model.user.User;
 import org.gusdb.wdk.model.xml.XmlQuestionSet;
 import org.gusdb.wdk.model.xml.XmlRecordClassSet;
 
@@ -60,143 +51,6 @@ public class WdkModelBean implements ConnectionContainer {
         return wdkModel;
     }
 
-    /**
-     * used by the controller
-     */
-    public RecordClassBean findRecordClass(String recClassRef)
-            throws WdkModelException {
-        return new RecordClassBean(wdkModel.getRecordClass(recClassRef));
-    }
-
-    public Map<String, CategoryBean> getWebsiteRootCategories() {
-        Map<String, CategoryBean> beans = new LinkedHashMap<String, CategoryBean>();
-        Map<String, SearchCategory> roots = wdkModel.getRootCategories(SearchCategory.USED_BY_WEBSITE);
-        for (SearchCategory category : roots.values()) {
-            CategoryBean bean = new CategoryBean(category);
-            beans.put(category.getName(), bean);
-        }
-        return beans;
-    }
-
-    public Map<String, CategoryBean> getWebserviceRootCategories() {
-        Map<String, CategoryBean> beans = new LinkedHashMap<String, CategoryBean>();
-        Map<String, SearchCategory> roots = wdkModel.getRootCategories(SearchCategory.USED_BY_WEBSERVICE);
-        for (SearchCategory category : roots.values()) {
-            CategoryBean bean = new CategoryBean(category);
-            beans.put(category.getName(), bean);
-        }
-        return beans;
-    }
-
-    public Map<QuestionBean, CategoryBean> getWebsiteQuestions()
-            throws WdkModelException {
-        Map<QuestionBean, CategoryBean> questions = new LinkedHashMap<QuestionBean, CategoryBean>();
-        Map<String, CategoryBean> categories = getWebsiteRootCategories();
-        Stack<CategoryBean> stack = new Stack<CategoryBean>();
-        stack.addAll(categories.values());
-        while (!stack.isEmpty()) {
-            CategoryBean category = stack.pop();
-            for (QuestionBean question : category.getWebsiteQuestions()) {
-                questions.put(question, category);
-            }
-            // add the children in reversed order to make sure they have the
-            // correct order when popping out from stack.
-            List<CategoryBean> children = new ArrayList<CategoryBean>(
-                    category.getWebsiteChildren().values());
-            for (int i = children.size() - 1; i >= 0; i--) {
-                stack.push(children.get(i));
-            }
-        }
-        return questions;
-    }
-
-    // getWebsiteQuestions does not include all expression questions included in an internal page
-    // we need this for the searchesLookup table
- public Map<QuestionBean, CategoryBean> getAllQuestions()
-            throws WdkModelException {
-        Map<QuestionBean, CategoryBean> questions = new LinkedHashMap<QuestionBean, CategoryBean>();
-        Map<String, CategoryBean> categories = getWebserviceRootCategories();
-        Stack<CategoryBean> stack = new Stack<CategoryBean>();
-        stack.addAll(categories.values());
-        while (!stack.isEmpty()) {
-            CategoryBean category = stack.pop();
-            for (QuestionBean question : category.getWebserviceQuestions()) {
-                questions.put(question, category);
-            }
-            // add the children in reversed order to make sure they have the
-            // correct order when popping out from stack.
-            List<CategoryBean> children = new ArrayList<CategoryBean>(
-                    category.getWebserviceChildren().values());
-            for (int i = children.size() - 1; i >= 0; i--) {
-                stack.push(children.get(i));
-            }
-        }
-        return questions;
-    }
-
-    /**
-     * @return Map of questionSetName --> {@link QuestionSetBean}
-     */
-    public Map<String, QuestionSetBean> getQuestionSetsMap() {
-        QuestionSet[] qSets = wdkModel.getAllQuestionSets();
-        Map<String, QuestionSetBean> qSetBeans = new LinkedHashMap<String, QuestionSetBean>();
-        for (QuestionSet qSet : qSets) {
-            QuestionSetBean qSetBean = new QuestionSetBean(qSet);
-            qSetBeans.put(qSet.getName(), qSetBean);
-        }
-        return qSetBeans;
-    }
-
-    public QuestionSetBean[] getQuestionSets() {
-        Map<String, QuestionSetBean> qSetMap = getQuestionSetsMap();
-        QuestionSetBean[] qSetBeans = new QuestionSetBean[qSetMap.size()];
-        qSetMap.values().toArray(qSetBeans);
-        return qSetBeans;
-    }
-
-    public RecordClassBean[] getRecordClasses() {
-
-        Vector<RecordClassBean> recordClassBeans = new Vector<RecordClassBean>();
-        RecordClassSet sets[] = wdkModel.getAllRecordClassSets();
-        for (int i = 0; i < sets.length; i++) {
-            RecordClassSet nextSet = sets[i];
-            RecordClass recordClasses[] = nextSet.getRecordClasses();
-            for (int j = 0; j < recordClasses.length; j++) {
-                RecordClass nextClass = recordClasses[j];
-                RecordClassBean bean = new RecordClassBean(nextClass);
-                recordClassBeans.addElement(bean);
-            }
-        }
-
-        RecordClassBean[] returnedBeans = new RecordClassBean[recordClassBeans.size()];
-        for (int i = 0; i < recordClassBeans.size(); i++) {
-            RecordClassBean nextReturnedBean = recordClassBeans.elementAt(i);
-            returnedBeans[i] = nextReturnedBean;
-        }
-        return returnedBeans;
-    }
-
-    public Map<String, RecordClassBean> getRecordClassMap() {
-        Map<String, RecordClassBean> recordClassMap = new LinkedHashMap<String, RecordClassBean>();
-        RecordClassSet[] rcsets = wdkModel.getAllRecordClassSets();
-        for (RecordClassSet rcset : rcsets) {
-            RecordClass[] rcs = rcset.getRecordClasses();
-            for (RecordClass rc : rcs) {
-                recordClassMap.put(rc.getFullName(), new RecordClassBean(rc));
-            }
-        }
-        return recordClassMap;
-    }
-
-    public Map<String, String> getRecordClassDisplayNames() {
-        RecordClassBean[] recClasses = getRecordClasses();
-        Map<String, String> types = new LinkedHashMap<String, String>();
-        for (RecordClassBean r : recClasses) {
-            types.put(r.getFullName(), r.getDisplayName());
-        }
-        return types;
-    }
-
     public XmlQuestionSetBean[] getXmlQuestionSets() {
         XmlQuestionSet[] qsets = wdkModel.getXmlQuestionSets();
         XmlQuestionSetBean[] qsetBeans = new XmlQuestionSetBean[qsets.length];
@@ -227,10 +81,6 @@ public class WdkModelBean implements ConnectionContainer {
         return rcBeans;
     }
 
-    public UserFactoryBean getUserFactory() {
-        return new UserFactoryBean(wdkModel, wdkModel.getUserFactory());
-    }
-
     public String getProjectId() {
         return wdkModel.getProjectId();
     }
@@ -256,8 +106,8 @@ public class WdkModelBean implements ConnectionContainer {
         return wdkModel.getModelConfig().getUseWeights();
     }
 
-    public UserBean getSystemUser() {
-        return new UserBean(wdkModel.getSystemUser());
+    public User getSystemUser() {
+        return wdkModel.getSystemUser();
     }
 
     /**
@@ -266,27 +116,6 @@ public class WdkModelBean implements ConnectionContainer {
      */
     public String getReleaseDate() {
         return wdkModel.getReleaseDate();
-    }
-
-    public QuestionBean getQuestion(String questionFullName)
-            throws WdkModelException {
-        return new QuestionBean(wdkModel.getQuestion(questionFullName)
-            .orElseThrow(() -> new WdkModelException("No question exists with name " + questionFullName)));
-    }
-
-    public Map<String, ParamBean<?>> getParams(UserBean user) throws WdkModelException {
-        Map<String, ParamBean<?>> params = new LinkedHashMap<String, ParamBean<?>>();
-        for (ParamSet paramSet : wdkModel.getAllParamSets()) {
-            for (Param param : paramSet.getParams()) {
-                ParamBean<?> bean = ParamBeanFactory.createBeanFromParam(wdkModel, user, param);
-                params.put(param.getFullName(), bean);
-            }
-        }
-        return params;
-    }
-    
-    public RecordClassBean getRecordClass(String rcName) throws WdkModelException {
-        return new RecordClassBean(wdkModel.getRecordClass(rcName));
     }
 
     @Override

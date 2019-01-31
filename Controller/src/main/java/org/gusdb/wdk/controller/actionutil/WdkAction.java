@@ -38,8 +38,8 @@ import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkResourceChecker;
 import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.WdkUserException;
-import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
+import org.gusdb.wdk.model.user.User;
 
 /**
  * Abstract class meant to provide a variety of commonly used utilities, a
@@ -395,8 +395,8 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
    * @return the current user (logged in or guest)
    * @throws WdkModelException if guest user is needed but unable to create guest user
    */
-  protected UserBean getCurrentUser() throws WdkModelException {
-    UserBean user = ActionUtility.getUser(_request);
+  protected User getCurrentUser() throws WdkModelException {
+    User user = (User)_request.getSession().getAttribute(Utilities.WDK_USER_KEY);
     // if guest is null, then filter is not configured properly; throw exception
     if (user == null) {
       throw new WdkModelException("WdkAction subclass " + getClass().getName() + " reached without a user in session.");
@@ -404,7 +404,7 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
     return user;
   }
   
-  protected UserBean getCurrentUserOrNull() {
+  protected User getCurrentUserOrNull() {
     try {
       return getCurrentUser();
     } catch (Exception e) {

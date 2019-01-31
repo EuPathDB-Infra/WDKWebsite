@@ -10,16 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.gusdb.wdk.model.Utilities;
-import org.gusdb.wdk.model.WdkModelException;
-import org.gusdb.wdk.model.WdkRuntimeException;
-import org.gusdb.wdk.model.answer.factory.AnswerValueFactory;
-import org.gusdb.wdk.model.answer.spec.AnswerSpec;
-import org.gusdb.wdk.model.jspwrap.AnswerValueBean;
-import org.gusdb.wdk.model.jspwrap.QuestionBean;
-import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
-import org.gusdb.wdk.model.query.spec.QueryInstanceSpec;
-import org.gusdb.wdk.model.user.StepContainer;
 
 /**
  * Heritage methods to access the current user,  model, and request params
@@ -27,19 +18,6 @@ import org.gusdb.wdk.model.user.StepContainer;
  * @author xingao
  */
 public class ActionUtility {
-
-    public static UserBean getUser(HttpServletRequest request) {
-        try {
-            UserBean user = (UserBean)request.getSession().getAttribute(Utilities.WDK_USER_BEAN_KEY);
-            if (user == null) {
-              throw new IllegalStateException("No user present on session. This should never happen.");
-            }
-            return user;
-        }
-        catch (Exception ex) {
-            throw new WdkRuntimeException(ex);
-        }
-    }
 
     public static WdkModelBean getWdkModel(HttpServlet servlet) {
         return (WdkModelBean)servlet.getServletContext().getAttribute(Utilities.WDK_MODEL_BEAN_KEY);
@@ -63,14 +41,4 @@ public class ActionUtility {
       }
     }
 
-
-    public static AnswerValueBean makeAnswerValue(UserBean user, QuestionBean question, Map<String, String> params)
-        throws WdkModelException {
-      return new AnswerValueBean(
-        AnswerValueFactory.makeAnswer(user.getUser(),
-          AnswerSpec.builder(question.getQuestion().getWdkModel())
-          .setQuestionName(question.getFullName())
-          .setQueryInstanceSpec(QueryInstanceSpec.builder().putAll(params))
-          .buildRunnable(user.getUser(), StepContainer.emptyContainer())));
-    }
 }
