@@ -7,6 +7,7 @@ import org.gusdb.wdk.controller.actionutil.ActionResult;
 import org.gusdb.wdk.controller.actionutil.ParamDef;
 import org.gusdb.wdk.controller.actionutil.ParamGroup;
 import org.gusdb.wdk.controller.actionutil.WdkAction;
+import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.record.RecordClass;
 
 /**
@@ -33,7 +34,9 @@ public class RecordPageAdapter extends WdkAction {
   @Override
   protected ActionResult handleRequest(ParamGroup params) throws Exception {
     String recordClassRef = params.getValue(PARAM_RECORD_CLASS_NAME);
-    RecordClass recordClass = getWdkModel().getModel().getRecordClass(recordClassRef);
+    RecordClass recordClass = getWdkModel().getModel().getRecordClass(recordClassRef)
+        .orElseThrow(() -> new WdkUserException(
+            "No record class exists with name '" + recordClassRef + "'."));
     String url = getWebAppRoot() + "/app" + createUrl(recordClass, params.getParamMap());
     return new ActionResult().setExternalPath(url);
   }
