@@ -34,7 +34,7 @@ public class RecordPageAdapter extends WdkAction {
   @Override
   protected ActionResult handleRequest(ParamGroup params) throws Exception {
     String recordClassRef = params.getValue(PARAM_RECORD_CLASS_NAME);
-    RecordClass recordClass = getWdkModel().getModel().getRecordClass(recordClassRef)
+    RecordClass recordClass = getWdkModel().getModel().getRecordClassByName(recordClassRef)
         .orElseThrow(() -> new WdkUserException(
             "No record class exists with name '" + recordClassRef + "'."));
     String url = getWebAppRoot() + "/app" + createUrl(recordClass, params.getParamMap());

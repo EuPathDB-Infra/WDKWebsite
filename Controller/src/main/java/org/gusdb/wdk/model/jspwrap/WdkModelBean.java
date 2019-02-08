@@ -141,7 +141,7 @@ public class WdkModelBean implements ConnectionContainer {
       String message = "The search '" + qFullName + "' is not or is no longer available.";
       try {
         // First check to see if this is a 'regular' question; if not, check XML questions
-        if (qFullName == null || wdkModel.getQuestion(qFullName) == null) {
+        if (qFullName == null || wdkModel.getQuestionByName(qFullName) == null) {
           throw new WdkModelException("Question name is null or resulting question is null");
         }
       }
@@ -175,7 +175,7 @@ public class WdkModelBean implements ConnectionContainer {
       String message = "The record type '" + recordClassName + "' is not or is no longer available.";
       try {
         // First check to see if this is a 'regular' record class; if not, check XML record classes
-        if (recordClassName == null || wdkModel.getRecordClass(recordClassName) == null) {
+        if (recordClassName == null || wdkModel.getRecordClassByName(recordClassName) == null) {
           throw new WdkModelException("RecordClass name is null or resulting RecordClass is null");
         }
       }
