@@ -57,7 +57,7 @@ public class OntologyFilterTest {
     // use a structure mapper to flatten the tree; removed nodes' children will be added to their respective parents
     return masterRoot.mapStructure(new StructureMapper<OntologyNode, TreeNode<OntologyNode>>() {
       @Override
-      public TreeNode<OntologyNode> map(OntologyNode obj, List<TreeNode<OntologyNode>> mappedChildren) {
+      public TreeNode<OntologyNode> apply(OntologyNode obj, List<TreeNode<OntologyNode>> mappedChildren) {
         // need to test each child to see if it should be removed, then inherit its children if it should
         TreeNode<OntologyNode> replacement = new TreeNode<>(obj);
         for (TreeNode<OntologyNode> child : mappedChildren) {
