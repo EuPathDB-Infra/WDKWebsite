@@ -64,15 +64,16 @@
 
 <!-- ================ SUMMARY VIEWS (EXTRA TABS DEFINED IN MODEL.XML)  =============== -->
 
-<c:set var="props">
+<c:set var="resultPanelProps">
   {
     "stepId": ${step.stepId}
   }
 </c:set>
 <div
+  class="result-panel-container"
   data-controller="wdk.clientAdapter"
   data-name="ResultPanelController"
-  data-props="${fn:escapeXml(props)}"
+  data-props="${fn:escapeXml(resultPanelProps)}"
 >
   <jsp:text/>
 </div>
