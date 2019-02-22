@@ -16,6 +16,7 @@ import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.user.Step;
 import org.gusdb.wdk.model.user.User;
+import org.gusdb.wdk.model.user.UserPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -157,10 +158,11 @@ public class SummaryTableUpdateProcessor {
 
   @SuppressWarnings("cast") // will not compile without cast - maybe fixed in Java 11?
   private static void updateStepSorting(Step step, Map<String, Boolean> upd) {
-    stepDisplayPrefs(step).put("sortColumns", 
+    stepDisplayPrefs(step).put("sortColumns",
       (JSONArray) upd.entrySet()
         .stream()
         .map(SummaryTableUpdateProcessor::entryToJsonPair)
+        .limit(UserPreferences.MAX_NUM_SORTING_COLUMNS)
         .collect(JSONArray::new, JSONArray::put, (a, b) -> b.forEach(a::put)));
   }
 
