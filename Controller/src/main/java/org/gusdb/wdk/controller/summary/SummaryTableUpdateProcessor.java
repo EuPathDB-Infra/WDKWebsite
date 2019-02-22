@@ -155,11 +155,13 @@ public class SummaryTableUpdateProcessor {
     }
   }
 
+  @SuppressWarnings("cast") // will not compile without cast - maybe fixed in Java 11?
   private static void updateStepSorting(Step step, Map<String, Boolean> upd) {
-    stepDisplayPrefs(step).put("sortColumns", upd.entrySet()
-      .stream()
-      .map(SummaryTableUpdateProcessor::entryToJsonPair)
-      .collect(JSONArray::new, JSONArray::put, (a, b) -> b.forEach(a::put)));
+    stepDisplayPrefs(step).put("sortColumns", 
+      (JSONArray) upd.entrySet()
+        .stream()
+        .map(SummaryTableUpdateProcessor::entryToJsonPair)
+        .collect(JSONArray::new, JSONArray::put, (a, b) -> b.forEach(a::put)));
   }
 
   private static void updateStepSummary(Step step, List<String> cols) {
