@@ -160,25 +160,6 @@
 
   </target>
 
-  <target name="installYarnBin" unless="hasYarnBin">
-    <!-- unpack yarn tgz into targetDirectory -->
-    <echo message="Installing yarn binary"/>
-    <mkdir dir="${targetDir}/lib/yarn"/>
-    <mkdir dir="${targetDir}/bin"/>
-    <exec executable="tar"
-      dir="${targetDir}/lib/yarn"
-      failonerror="true"
-      failifexecutionfails="true">
-      <arg line="xzf ${projectsDir}/WDKWebsite/View/yarn.tar.gz --strip-components 1"/>
-    </exec>
-    <symlink overwrite="true" link="${targetDir}/bin/yarn" resource="${targetDir}/lib/yarn/bin/yarn"/>
-  </target>
-
-  <target name="yarnBinCheck">
-    <available property="hasYarnBin" file="${targetDir}/bin/yarn"/>
-  </target>
-
-
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooo  Release  ooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
