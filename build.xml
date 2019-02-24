@@ -119,7 +119,7 @@
     </ant>
   </target>
 
-  <target name="WDKWebsite/View-WebInstallation" depends="yarnBinCheck,installYarnBin">
+  <target name="WDKWebsite/View-WebInstallation" depends="installYarnBin">
     <ant target="defaultWebComponentInstall">
       <property name="project" value="WDKWebsite"/>
       <property name="component" value="View"/>
