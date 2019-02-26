@@ -157,7 +157,7 @@ wdk.namespace("window.wdk.parameterHandlers", function(ns, $) {
       .flatMap(dependson => dependson.split(/\s*,\s*/))
       .uniq()
       .forEach(name => {
-        $element.on('change', `[name="array(${name})"], [name="value(${name})"]`, event => {
+        $element.find(`[name="array(${name})"], [name="value(${name})"]`).on('change', event => {
           legacyParamControllers.forEach(el => {
             const propsAttrValue = el.getAttribute('data-props');
 
