@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.gusdb.wdk.model;
 
 import java.util.ArrayList;
@@ -8,8 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
+import org.gusdb.wdk.model.answer.spec.AnswerSpec;
 import org.gusdb.wdk.model.dbms.CacheFactory;
 import org.gusdb.wdk.model.query.SqlQuery;
 import org.gusdb.wdk.model.query.param.AnswerParam;
@@ -19,11 +19,11 @@ import org.gusdb.wdk.model.query.param.ParamValuesSet;
 import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.question.QuestionSet;
 import org.gusdb.wdk.model.test.ParamValuesFactory;
-import org.gusdb.wdk.model.user.UnregisteredUser.UnregisteredUserType;
 import org.gusdb.wdk.model.user.Step;
 import org.gusdb.wdk.model.user.StepFactory;
-import org.gusdb.wdk.model.user.StepUtilities;
+import org.gusdb.wdk.model.user.UnregisteredUser.UnregisteredUserType;
 import org.gusdb.wdk.model.user.User;
+import org.gusdb.wdk.model.user.UserCache;
 import org.gusdb.wdk.model.user.UserFactory;
 
 /**
@@ -47,8 +47,14 @@ public class UnitTestHelper {
     private static List<Question> normalQuestions;
     private static List<Question> datasetQuestions;
 
+    private static AtomicLong nextStepId = new AtomicLong(0L);
+
     public static Random getRandom() {
         return random;
+    }
+
+    public static long getNextStepId() {
+      return nextStepId.incrementAndGet();
     }
 
     public synchronized static WdkModel getModel() throws WdkModelException {
@@ -109,12 +115,16 @@ public class UnitTestHelper {
         return datasetQuestions.get(random.nextInt(datasetQuestions.size()));
     }
 
-    public static Step createNormalStep(User user) throws WdkModelException {
+    public static RunnableObj<Step> createNormalStep(User user) throws WdkModelException {
         Question question = getNormalQuestion();
         List<ParamValuesSet> paramValueSets = ParamValuesFactory.getParamValuesSets(user, question.getQuery());
         ParamValuesSet paramValueSet = paramValueSets.get(random.nextInt(paramValueSets.size()));
-        Map<String, String> params = paramValueSet.getParamValues();
-        return StepUtilities.createStep(user, null, question, params, (String) null, false, 0);
+        WdkModel model = getModel();
+        return Step.builder(model, user.getUserId(), getNextStepId())
+            .setAnswerSpec(AnswerSpec.builder(getModel())
+                .setQuestionName(question.getFullName())
+                .setParamValues(paramValueSet.getParamValues()))
+            .buildRunnable(new UserCache(user), null);
     }
 
     private static void loadQuestions() throws WdkModelException {

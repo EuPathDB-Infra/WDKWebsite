@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.gusdb.fgputil.db.pool.DatabaseInstance;
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.wdk.model.answer.AnswerValue;
 import org.gusdb.wdk.model.answer.factory.AnswerValueFactory;
 import org.gusdb.wdk.model.answer.spec.AnswerSpec;
@@ -34,8 +35,8 @@ public class BooleanQuestionTest {
     private RecordClass recordClass;
     private AnswerValue leftAnswerValue;
     private AnswerValue rightAnswerValue;
-    private Step leftStep;
-    private Step rightStep;
+    private RunnableObj<Step> leftStep;
+    private RunnableObj<Step> rightStep;
     private StepContainer stepContainer;
 
     public BooleanQuestionTest() throws Exception {
@@ -52,14 +53,14 @@ public class BooleanQuestionTest {
         leftStep = UnitTestHelper.createNormalStep(regUser);
         rightStep = UnitTestHelper.createNormalStep(regUser);
 
-        leftAnswerValue = leftStep.getAnswerValue();
-        rightAnswerValue = rightStep.getAnswerValue();
+        leftAnswerValue = AnswerValueFactory.makeAnswer(leftStep);
+        rightAnswerValue = AnswerValueFactory.makeAnswer(rightStep);
 
-        recordClass = leftStep.getAnswerSpec().getQuestion().getRecordClass();
+        recordClass = leftStep.getObject().getAnswerSpec().getQuestion().getRecordClass();
 
         ListStepContainer container = new ListStepContainer();
-        container.add(leftStep);
-        container.add(rightStep);
+        container.add(leftStep.getObject());
+        container.add(rightStep.getObject());
         stepContainer = container;
     }
 
@@ -71,10 +72,10 @@ public class BooleanQuestionTest {
 
       AnswerParam leftParam = booleanQuery.getLeftOperandParam();
       // calling answer info to make sure the answer is saved first
-      paramValues.put(leftParam.getName(), String.valueOf(leftStep.getStepId()));
+      paramValues.put(leftParam.getName(), String.valueOf(leftStep.getObject().getStepId()));
 
       AnswerParam rightParam = booleanQuery.getRightOperandParam();
-      paramValues.put(rightParam.getName(), String.valueOf(rightStep.getStepId()));
+      paramValues.put(rightParam.getName(), String.valueOf(rightStep.getObject().getStepId()));
 
       StringParam operatorParam = booleanQuery.getOperatorParam();
       paramValues.put(operatorParam.getName(), operator.getOperator(appDb.getPlatform()));

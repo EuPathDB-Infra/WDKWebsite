@@ -8,8 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.wdk.model.answer.AnswerFilterInstance;
 import org.gusdb.wdk.model.answer.AnswerValue;
+import org.gusdb.wdk.model.answer.factory.AnswerValueFactory;
 import org.gusdb.wdk.model.record.attribute.AttributeField;
 import org.gusdb.wdk.model.user.Step;
 import org.gusdb.wdk.model.user.User;
@@ -30,12 +32,12 @@ public class AnswerValueTest {
 
     @Test
     public void testGetSummaryAttributes() throws Exception {
-        Step step = UnitTestHelper.createNormalStep(user);
-        AnswerValue answer = step.getAnswerValue();
+        RunnableObj<Step> step = UnitTestHelper.createNormalStep(user);
+        AnswerValue answerValue = AnswerValueFactory.makeAnswer(step);
 
-        Map<String, AttributeField> displayFields = answer
+        Map<String, AttributeField> displayFields = answerValue
             .getAttributes().getDisplayableAttributeMap();
-        Map<String, AttributeField> summaryFields = answer
+        Map<String, AttributeField> summaryFields = answerValue
             .getAttributes().getSummaryAttributeFieldMap();
 
         // no display fields should appear in summary fields
@@ -53,8 +55,8 @@ public class AnswerValueTest {
 
     @Test
     public void testAddSummaryAttibute() throws Exception {
-        Step step = UnitTestHelper.createNormalStep(user);
-        AnswerValue answerValue = step.getAnswerValue();
+        RunnableObj<Step> step = UnitTestHelper.createNormalStep(user);
+        AnswerValue answerValue = AnswerValueFactory.makeAnswer(step);
 
         Map<String, AttributeField> displayFields = answerValue
             .getAttributes().getDisplayableAttributeMap();
@@ -85,8 +87,8 @@ public class AnswerValueTest {
 
     @Test
     public void testDeleteSummaryAttibute() throws Exception {
-        Step step = UnitTestHelper.createNormalStep(user);
-        AnswerValue answerValue = step.getAnswerValue();
+        RunnableObj<Step> step = UnitTestHelper.createNormalStep(user);
+        AnswerValue answerValue = AnswerValueFactory.makeAnswer(step);
 
         Map<String, AttributeField> displayFields = answerValue
             .getAttributes().getDisplayableAttributeMap();
@@ -120,8 +122,8 @@ public class AnswerValueTest {
 
     @Test
     public void testGetFilterSizes() throws Exception {
-        Step step = UnitTestHelper.createNormalStep(user);
-        AnswerValue answerValue = step.getAnswerValue();
+        RunnableObj<Step> step = UnitTestHelper.createNormalStep(user);
+        AnswerValue answerValue = AnswerValueFactory.makeAnswer(step);
         AnswerFilterInstance currentFilter = answerValue.getAnswerSpec().getLegacyFilter();
         int size = answerValue.getResultSizeFactory().getResultSize();
 
