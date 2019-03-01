@@ -62,6 +62,13 @@
 
 <!--<div><a href="javascript:wdk.stepAnalysis.showAllAnalyses()">Magic Button</a></div>-->
 
+<c:set var="stepFilterProps">{ "stepId": ${step.stepId} }</c:set>
+<div
+  data-controller="wdk.clientAdapter"
+  data-name="StepFiltersController"
+  data-props="${fn:escapeXml(stepFilterProps)}"
+><jsp:text/></div>
+
 <!-- ================ SUMMARY VIEWS (EXTRA TABS DEFINED IN MODEL.XML)  =============== -->
 
 <c:set var="resultPanelProps">
