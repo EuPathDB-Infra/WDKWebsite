@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -124,7 +125,7 @@ public class UnitTestHelper {
             .setAnswerSpec(AnswerSpec.builder(getModel())
                 .setQuestionName(question.getFullName())
                 .setParamValues(paramValueSet.getParamValues()))
-            .buildRunnable(new UserCache(user), null);
+            .buildRunnable(new UserCache(user), Optional.empty());
     }
 
     private static void loadQuestions() throws WdkModelException {
