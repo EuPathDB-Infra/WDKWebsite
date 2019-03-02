@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.gusdb.fgputil.validation.ValidObjectFactory.RunnableObj;
 import org.gusdb.wdk.model.answer.AnswerFilterInstance;
@@ -124,14 +125,14 @@ public class AnswerValueTest {
     public void testGetFilterSizes() throws Exception {
         RunnableObj<Step> step = UnitTestHelper.createNormalStep(user);
         AnswerValue answerValue = AnswerValueFactory.makeAnswer(step);
-        AnswerFilterInstance currentFilter = answerValue.getAnswerSpec().getLegacyFilter();
+        Optional<AnswerFilterInstance> currentFilter = answerValue.getAnswerSpec().getLegacyFilter();
         int size = answerValue.getResultSizeFactory().getResultSize();
 
         AnswerFilterInstance[] filters = answerValue.getAnswerSpec().getQuestion()
                 .getRecordClass().getFilterInstances();
         for (AnswerFilterInstance filter : filters) {
             int filterSize = answerValue.getResultSizeFactory().getFilterSize(filter.getName());
-            if (filter.equals(currentFilter)) {
+            if (currentFilter.isPresent() && filter.getName().equals(currentFilter.get().getName())) {
                 Assert.assertEquals(size, filterSize);
             } else {
                 Assert.assertTrue(filterSize >= 0);
