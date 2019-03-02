@@ -56,11 +56,11 @@ public class BooleanQuestionTest {
         leftAnswerValue = AnswerValueFactory.makeAnswer(leftStep);
         rightAnswerValue = AnswerValueFactory.makeAnswer(rightStep);
 
-        recordClass = leftStep.getObject().getAnswerSpec().getQuestion().getRecordClass();
+        recordClass = leftStep.get().getAnswerSpec().getQuestion().getRecordClass();
 
         ListStepContainer container = new ListStepContainer();
-        container.add(leftStep.getObject());
-        container.add(rightStep.getObject());
+        container.add(leftStep.get());
+        container.add(rightStep.get());
         stepContainer = container;
     }
 
@@ -72,10 +72,10 @@ public class BooleanQuestionTest {
 
       AnswerParam leftParam = booleanQuery.getLeftOperandParam();
       // calling answer info to make sure the answer is saved first
-      paramValues.put(leftParam.getName(), String.valueOf(leftStep.getObject().getStepId()));
+      paramValues.put(leftParam.getName(), String.valueOf(leftStep.get().getStepId()));
 
       AnswerParam rightParam = booleanQuery.getRightOperandParam();
-      paramValues.put(rightParam.getName(), String.valueOf(rightStep.getObject().getStepId()));
+      paramValues.put(rightParam.getName(), String.valueOf(rightStep.get().getStepId()));
 
       StringParam operatorParam = booleanQuery.getOperatorParam();
       paramValues.put(operatorParam.getName(), operator.getOperator(appDb.getPlatform()));
