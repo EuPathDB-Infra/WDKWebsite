@@ -161,7 +161,7 @@ public class SummaryTableUpdateProcessor {
     stepDisplayPrefs(step).put("sortColumns",
       (JSONArray) upd.entrySet()
         .stream()
-        .map(SummaryTableUpdateProcessor::entryToJsonPair)
+        .map(SummaryTableUpdateProcessor::entryToJson)
         .limit(UserPreferences.MAX_NUM_SORTING_COLUMNS)
         .collect(JSONArray::new, JSONArray::put, (a, b) -> b.forEach(a::put)));
   }
@@ -170,9 +170,10 @@ public class SummaryTableUpdateProcessor {
     stepDisplayPrefs(step).put("columnSelection", new JSONArray(cols));
   }
 
-  private static JSONObject entryToJsonPair(Map.Entry<String, Boolean> entry) {
+  private static JSONObject entryToJson(Map.Entry<String, Boolean> entry) {
     return new JSONObject()
-      .put(entry.getKey(), SortDirection.getFromIsAscending(entry.getValue()).toString());
+      .put("name", entry.getKey())
+      .put("direction", SortDirection.getFromIsAscending(entry.getValue()).toString());
   }
 
   private static JSONObject stepDisplayPrefs(Step step) {
