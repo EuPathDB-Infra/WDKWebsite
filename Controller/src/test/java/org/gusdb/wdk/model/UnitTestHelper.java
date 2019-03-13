@@ -123,7 +123,7 @@ public class UnitTestHelper {
         WdkModel model = getModel();
         return Step.builder(model, user.getUserId(), getNextStepId())
             .setAnswerSpec(AnswerSpec.builder(getModel())
-                .setQuestionName(question.getFullName())
+                .setQuestionFullName(question.getFullName())
                 .setParamValues(paramValueSet.getParamValues()))
             .buildRunnable(new UserCache(user), Optional.empty());
     }

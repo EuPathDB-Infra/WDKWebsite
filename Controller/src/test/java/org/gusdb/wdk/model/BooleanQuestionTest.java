@@ -66,7 +66,7 @@ public class BooleanQuestionTest {
 
     private int getBooleanResultSizeWithOperator(BooleanOperator operator) throws WdkModelException {
 
-      Question booleanQuestion = wdkModel.getBooleanQuestion(recordClass);
+      Question booleanQuestion = wdkModel.addBooleanQuestion(recordClass);
       BooleanQuery booleanQuery = (BooleanQuery) booleanQuestion.getQuery();
       Map<String, String> paramValues = new LinkedHashMap<String, String>();
 
@@ -82,7 +82,7 @@ public class BooleanQuestionTest {
 
       AnswerValue answerValue = AnswerValueFactory.makeAnswer(user, AnswerSpec
           .builder(wdkModel)
-          .setQuestionName(booleanQuestion.getFullName())
+          .setQuestionFullName(booleanQuestion.getFullName())
           .setParamValues(paramValues)
           .buildRunnable(user, stepContainer));
 

@@ -128,7 +128,7 @@ public class WdkModelBean {
       String message = "The search '" + qFullName + "' is not or is no longer available.";
       try {
         // First check to see if this is a 'regular' question; if not, check XML questions
-        if (qFullName == null || wdkModel.getQuestionByName(qFullName) == null) {
+        if (qFullName == null || wdkModel.getQuestionByFullName(qFullName) == null) {
           throw new WdkModelException("Question name is null or resulting question is null");
         }
       }
