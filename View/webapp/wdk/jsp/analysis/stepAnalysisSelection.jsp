@@ -7,15 +7,7 @@
   <c:set var="question" value="${wdkStep.question}"/>
   <html>
     <body>
-      <div class="analysis-menu-tab-pane">
-        <h3>Analyze your ${question.recordClass.displayName} results with a tool below.</h3>
-        <div class="analysis-selector-container">
-          <c:forEach items="${question.stepAnalyses}" var="analysisEntry">
-            <c:set var="analysis" value="${analysisEntry.value}"/>
-            <imp:stepAnalysisTile analysis="${analysis}" recordClassName="${question.recordClass.fullName}" />
-          </c:forEach>
-        </div>
-      </div>
+        <imp:stepAnalysis question="${question}" />
     </body>
   </html>
 </jsp:root>
