@@ -57,6 +57,15 @@ wdk.namespace("window.wdk.filter", function(ns, $) {
       this.addShowHide();
       this.displayFilters();
 
+     $el.on('click', 'a.link-url2', function changeFilter(event) {
+        var $target = $(event.currentTarget);
+        var strategyId = $target.attr('strId');
+        var stepId = $target.attr('stpId');
+        var url = $target.attr('linkurl2');
+        var filterElement = $target.closest('.filter-instance')[0];
+        wdk.strategy.controller.ChangeFilter(strategyId, stepId, url, filterElement);
+      });
+
       $el.on('click', 'a.link-url', function changeFilter(event) {
         var $target = $(event.currentTarget);
         var strategyId = $target.attr('strId');

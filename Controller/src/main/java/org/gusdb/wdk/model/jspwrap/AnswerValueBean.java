@@ -430,16 +430,7 @@ public class AnswerValueBean implements AnswerValueProvider {
      * @see org.gusdb.wdk.model.AnswerValue#getAllPkValues()
      */
     public String getAllIdList() throws WdkModelException, WdkUserException {
-        List<String[]> pkValues = answerValue.getAllIds();
-        StringBuilder buffer = new StringBuilder();
-        for (String[] pkValue : pkValues) {
-            if (buffer.length() > 0) buffer.append("\n");
-            for (int i = 0; i < pkValue.length; i++) {
-                if (i > 0) buffer.append(", ");
-                buffer.append(pkValue[i]);
-            }
-        }
-        return buffer.toString();
+        return answerValue.getAllIdsAsString();
     }
 
     public AnswerValueBean makeAnswerValue(int pageStart, int pageEnd) {
