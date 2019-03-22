@@ -24,15 +24,24 @@
 <c:set var="recHasBasket" value="${recordClass.useBasket}" />
 
 <c:set var="recordName" value="${wdkStep.recordClass.displayNamePlural}"/>
+<c:set var="isBasket" value="${strategy eq null}"/>
+<c:choose>
+  <c:when test="${isBasket}">
+    <c:set var="viewId" value="basket-${recordClass.fullName}"/>
+  </c:when>
+  <c:otherwise>
+    <c:set var="viewId" value="strategy"/>
+  </c:otherwise>
+</c:choose>
 
 
 <!-- ================ TAG SHARED BY BASKET AND OPENED TABS =============== -->
 <!-- handle empty result set situation -->
 <c:choose>
-  <c:when test='${strategy eq null and wdkUser.guest and wdkAnswer.resultSize eq 0}'>
+  <c:when test='${isBasket and wdkUser.guest and wdkAnswer.resultSize eq 0}'>
     Please login to use the basket
   </c:when>
-  <c:when test='${strategy eq null and wdkAnswer.resultSize eq 0}'>
+  <c:when test='${isBasket and wdkAnswer.resultSize eq 0}'>
     Basket Empty
   </c:when>
   <c:otherwise>
@@ -62,18 +71,21 @@
 
 <!--<div><a href="javascript:wdk.stepAnalysis.showAllAnalyses()">Magic Button</a></div>-->
 
-<c:set var="stepFilterProps">{ "stepId": ${step.stepId} }</c:set>
-<div
-  data-controller="wdk.clientAdapter"
-  data-name="StepFiltersController"
-  data-props="${fn:escapeXml(stepFilterProps)}"
-><jsp:text/></div>
+<c:if test="${strategy != null}">
+  <c:set var="stepFilterProps">{ "stepId": ${step.stepId}, "viewId": "${viewId}" }</c:set>
+  <div
+    data-controller="wdk.clientAdapter"
+    data-name="StepFiltersController"
+    data-props="${fn:escapeXml(stepFilterProps)}"
+  ><jsp:text/></div>
+</c:if>
 
 <!-- ================ SUMMARY VIEWS (EXTRA TABS DEFINED IN MODEL.XML)  =============== -->
 
 <c:set var="resultPanelProps">
   {
-    "stepId": ${step.stepId}
+    "stepId": ${step.stepId},
+    "viewId": "${viewId}"
   }
 </c:set>
 <div
