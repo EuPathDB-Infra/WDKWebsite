@@ -67,7 +67,7 @@ public class UnitTestHelper {
 
             // reset the cache
             logger.info("resetting cache...");
-            CacheFactory cacheFactory = _wdkModel.getResultFactory().getCacheFactory();
+            CacheFactory cacheFactory = new CacheFactory(_wdkModel);
             cacheFactory.resetCache(true, true);
         }
         return _wdkModel;
