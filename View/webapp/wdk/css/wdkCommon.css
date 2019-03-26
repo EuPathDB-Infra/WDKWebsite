@@ -1242,7 +1242,7 @@ padding: 0;
 margin: 1em 0 -1px;
 }
 
-.Summary_Views .ui-tabs-panel {
+.result-panel-container {
   min-height: 25em;
 }
 button.wdk-StepActionButton {

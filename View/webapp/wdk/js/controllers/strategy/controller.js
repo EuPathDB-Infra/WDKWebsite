@@ -748,6 +748,11 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
 
     wdk.addStepPopup.current_Front_Strategy_Id = f_strategyId;
 
+    // Hack to make sure we load the latest changes to step in
+    // the new react result panel. This will break if WdkService
+    // changes step caching strategy.
+    wdk.getWdkService()._stepMap.clear();
+
     var strategy = wdk.strategy.model.getStrategy(f_strategyId);
     var step = strategy.getStep(f_stepId, true);
     var url = "showSummary.do";

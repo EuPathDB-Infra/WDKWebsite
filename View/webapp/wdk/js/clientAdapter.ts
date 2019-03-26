@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 import { Provider } from 'react-redux';
 
+import { PluginContext, makeCompositePluginComponent } from 'wdk-client/Utils/ClientPlugin';
+
 import {
   Controllers as WdkControllers,
   initialize as initializeWdk,
@@ -97,7 +99,13 @@ wdk.namespace('wdk', ns => {
                 React.createElement(
                   Router,
                   { history: context.history },
-                  React.createElement(ViewController as any, { ...props, ...context, ref: viewControllerRef })
+                  React.createElement(
+                    PluginContext.Provider,
+                    {
+                      value: makeCompositePluginComponent(context.pluginConfig)
+                    },
+                    React.createElement(ViewController as any, { ...props, ref: viewControllerRef })
+                  )
                 )
               )
             ), el)
@@ -141,7 +149,14 @@ type MutationOptions = {
  */
 function observeMutations(el: Element, options: MutationOptions) {
 
-  handleDataProps(el);
+  // Defer intial execution to prevent race condition when a node is replaced.
+  // This ensures that onRemoved is called before onPropsChanged for the node.
+  // MutationObserver callbacks are queued in a microtask, which basically means
+  // the callback will be delayed until the end of the current event loop.
+  // `setImmediate` schedules the callback for the _next_ event loop.
+  setImmediate(handleDataProps, el);
+
+  // handleDataProps(el);
 
   let propsChangedObserver = new MutationObserver(function(mutations) {
     mutations.forEach(mutation => {
@@ -171,10 +186,10 @@ function observeMutations(el: Element, options: MutationOptions) {
       return observer;
     });
 
-    function handleDataProps (node: Element) {
-      const dataProps = node.attributes.getNamedItem('data-props');
-      options.onPropsChanged(dataProps && JSON.parse(dataProps.value));
-    }
+  function handleDataProps (node: Element) {
+    const dataProps = node.attributes.getNamedItem('data-props');
+    options.onPropsChanged(dataProps && JSON.parse(dataProps.value));
+  }
 }
 
 function* ancestors(el: Element) {

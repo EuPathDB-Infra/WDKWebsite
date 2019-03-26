@@ -13,7 +13,7 @@ npm:
     $ npm i -g webpack-dev-server
 
 
-In WDKWebsite/View, run the following command to start the server:
+In WDK/View, run the following command to start the server:
 
     $ make examples-server
 
