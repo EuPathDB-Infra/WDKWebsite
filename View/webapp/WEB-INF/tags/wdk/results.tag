@@ -24,15 +24,24 @@
 <c:set var="recHasBasket" value="${recordClass.useBasket}" />
 
 <c:set var="recordName" value="${wdkStep.recordClass.displayNamePlural}"/>
+<c:set var="isBasket" value="${strategy eq null}"/>
+<c:choose>
+  <c:when test="${isBasket}">
+    <c:set var="viewId" value="basket-${recordClass.fullName}"/>
+  </c:when>
+  <c:otherwise>
+    <c:set var="viewId" value="strategy"/>
+  </c:otherwise>
+</c:choose>
 
 
 <!-- ================ TAG SHARED BY BASKET AND OPENED TABS =============== -->
 <!-- handle empty result set situation -->
 <c:choose>
-  <c:when test='${strategy eq null and wdkUser.guest and wdkAnswer.resultSize eq 0}'>
+  <c:when test='${isBasket and wdkUser.guest and wdkAnswer.resultSize eq 0}'>
     Please login to use the basket
   </c:when>
-  <c:when test='${strategy eq null and wdkAnswer.resultSize eq 0}'>
+  <c:when test='${isBasket and wdkAnswer.resultSize eq 0}'>
     Basket Empty
   </c:when>
   <c:otherwise>
@@ -62,95 +71,30 @@
 
 <!--<div><a href="javascript:wdk.stepAnalysis.showAllAnalyses()">Magic Button</a></div>-->
 
+<c:if test="${strategy != null}">
+  <c:set var="stepFilterProps">{ "stepId": ${step.stepId}, "viewId": "${viewId}" }</c:set>
+  <div
+    data-controller="wdk.clientAdapter"
+    data-name="StepFiltersController"
+    data-props="${fn:escapeXml(stepFilterProps)}"
+  ><jsp:text/></div>
+</c:if>
+
 <!-- ================ SUMMARY VIEWS (EXTRA TABS DEFINED IN MODEL.XML)  =============== -->
 
-<c:set var="question" value="${wdkStep.question}" />
-<c:set var="views" value="${question.summaryViews}" />
-<c:set var="currentView" value="${wdkUser.currentSummaryViews[question.fullName].name}" />
-
-<div id="Summary_Views" class="Summary_Views"
-    data-controller="wdk.resultsPage.configureSummaryViews"
-    strategy="${strategy.strategyId}"
-    step="${step.stepId}"
-    question="${question.fullName}"
-    updateUrl="${pageContext.request.contextPath}/processSummaryView.do">
-  
-  <%-- get the index of the current view --%>
-  <c:set var="selectedTab" value="${0}" />
-  <c:set var="index" value="${0}" />
-  <c:forEach items="${views}" var="item">
-      <c:if test="${item.key == currentView}">
-        <c:set var="selectedTab" value="${index}" />
-      </c:if>
-      <c:set var="index" value="${index + 1}" />
-  </c:forEach>
-
-  <ul style="overflow:visible" currentTab="${selectedTab}">
-    <c:forEach items="${views}" var="item">
-      <c:set var="view" value="${item.value}" />
-      <li id="${view.name}">
-        <a href="${pageContext.request.contextPath}/showSummaryView.do?strategy=${wdkStrategy.strategyId}&step=${wdkStep.stepId}&view=${view.name}"
-             title="${view.description}"
-          >${view.display} <span> </span></a>
-      </li>
-    </c:forEach>
-    <c:forEach items="${wdkStep.appliedAnalyses}" var="analysisEntry">
-      <c:set var="analysisId" value="${analysisEntry.key}"/>
-      <c:set var="analysisCtx" value="${analysisEntry.value}"/>
-      <c:set var="analysis" value="${analysisCtx.stepAnalysis}"/>
-      <li id="step-analysis-${analysisId}">
-        <a href="${pageContext.request.contextPath}/stepAnalysisPane.do?analysisId=${analysisId}" title="${analysis.shortDescription}">
-          ${analysisCtx.displayName} <span> </span>
-        </a>
-        <span class="ui-icon ui-icon-circle-close ui-closable-tab step-analysis-close-icon"></span>
-      </li>
-    </c:forEach>
-
-    <c:if test="${not empty strategy and fn:length(question.stepAnalyses) > 0}">
-      <c:set var="newAnalyses">
-        <c:forEach items="${question.stepAnalyses}" var="analysis">
-          <c:set var="analysisCtx" value="${analysis.value}"/>
-          <c:if test="${analysisCtx.releaseVersion eq wdkModel.model.buildNumber}">
-            <li>${analysisCtx.displayName}</li>
-          </c:if>
-        </c:forEach>
-      </c:set>
-      <li id="choose-step-analysis">
-        <a href="${pageContext.request.contextPath}/showNewAnalysisTab.do?strategy=${wdkStrategy.strategyId}&step=${wdkStep.stepId}">New Analysis<span> </span>
-        </a>
-        <span class="ui-icon ui-icon-circle-close ui-closable-tab step-analysis-close-icon"></span>
-      </li>
-      <li id="add-analysis">
-        <button title="Choose an analysis tool to apply to the results of your current step.">Analyze Results</button>
-        <c:if test="${not empty newAnalyses}">
-          <div class="analysis-feature-tooltip">
-            <ul>
-              ${newAnalyses}
-            </ul>
-          </div>
-        </c:if>
-      </li>
-    </c:if>
-    <%--
-    <c:if test="${fn:length(question.stepAnalyses) > 0}">
-      <li>
-        <div class="new-analysis">
-          <span class="new-analysis-button"><span class="new-analysis-instr">+ Analyze This Result</span></span>
-          <div class="new-analysis-menu">
-            <ul>
-              <c:forEach items="${question.stepAnalyses}" var="analysisEntry">
-                <c:set var="analysis" value="${analysisEntry.value}"/>
-                <li title="${analysis.description}" data-strategy="${wdkStrategy.strategyId}"
-                    data-step="${wdkStep.stepId}" data-analysis="${analysis.name}">
-                  ${analysis.displayName}</li>
-              </c:forEach>
-            </ul>
-          </div>
-        </div>
-      </li>
-    </c:if>
-    --%>
-  </ul>
+<c:set var="resultPanelProps">
+  {
+    "stepId": ${step.stepId},
+    "viewId": "${viewId}"
+  }
+</c:set>
+<div
+  class="result-panel-container"
+  data-controller="wdk.clientAdapter"
+  data-name="ResultPanelController"
+  data-props="${fn:escapeXml(resultPanelProps)}"
+>
+  <jsp:text/>
 </div>
 
   </c:otherwise>
