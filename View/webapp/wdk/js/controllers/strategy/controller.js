@@ -3,6 +3,8 @@
 
 import _ from 'lodash';
 
+import { getContext } from '../../clientAdapter';
+
 /**
  * This file contains functions used to communicate strategy operations between
  * the client and the server.
@@ -124,40 +126,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
         $detailBox.find('.analyze_step_link').removeClass('disabled');
       });
 
-    // FIXME Factor out into own function
-    const { store } = window.ebrc.context;
-    let prevState = store.getState();
-    store.subscribe(() => {
-      const nextState = store.getState();
-      const selectedStepId = uiState.step && (
-        uiState.isBoolean ? uiState.step.back_boolean_Id : uiState.step.back_step_Id );
-      const prevStep = prevState.steps.steps[selectedStepId];
-      const nextStep = nextState.steps.steps[selectedStepId];
-      const stepChanged = (
-        // if we're just getting the step, don't consider it changed
-        prevStep != null && nextStep != null &&
-        // use deep equality check since we clear the step cache when results are reloaded
-        !_.isEqual(prevStep.answerSpec, nextStep.answerSpec)
-      );
-
-      // TODO Refine detection so that only updated to saved analyses are handled
-      const prevAnalysisState = prevState.stepAnalysis.analysisPanelStates;
-      const nextAnalysisState = nextState.stepAnalysis.analysisPanelStates;
-      const analysesChanged = prevAnalysisState !== nextAnalysisState;
-
-      if (stepChanged) {
-        // update the strategy panel, but don't reload the results panel
-        fetchStrategies(_.partial(updateStrategies, _, true, false));
-        console.log('Detected step updated in redux store', { prevStep, nextStep });
-      }
-
-      else if (analysesChanged) {
-        fetchStrategies(mergeStrategies);
-        console.log('Detected anlysisState updated in redux store', { prevAnalysisState, nextAnalysisState });
-      }
-
-      prevState = nextState
-    });
+    observeReduxStore();
 
     // Add delegate submit handler here for question form
     // The callback is called when the event bubbles up to the body
@@ -1340,6 +1309,42 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
       wdk.util.removeLoading(strategy.frontId);
     });
     return deferred;
+  }
+
+  async function observeReduxStore() {
+    const { store } = await getContext();
+    let prevState = store.getState();
+    store.subscribe(() => {
+      const nextState = store.getState();
+      const selectedStepId = uiState.step && (
+        uiState.isBoolean ? uiState.step.back_boolean_Id : uiState.step.back_step_Id );
+      const prevStep = prevState.steps.steps[selectedStepId];
+      const nextStep = nextState.steps.steps[selectedStepId];
+      const stepChanged = (
+        // if we're just getting the step, don't consider it changed
+        prevStep != null && nextStep != null &&
+        // use deep equality check since we clear the step cache when results are reloaded
+        !_.isEqual(prevStep.answerSpec, nextStep.answerSpec)
+      );
+
+      // TODO Refine detection so that only updated to saved analyses are handled
+      const prevAnalysisPanelStates = prevState.stepAnalysis.analysisPanelStates;
+      const nextAnalysisPanelStates = nextState.stepAnalysis.analysisPanelStates;
+      const analysesChanged = prevAnalysisPanelStates !== nextAnalysisPanelStates;
+
+      if (stepChanged) {
+        // update the strategy panel, but don't reload the results panel
+        fetchStrategies(_.partial(updateStrategies, _, true, false));
+        console.log('Detected step updated in redux store', { prevStep, nextStep });
+      }
+
+      else if (analysesChanged) {
+        fetchStrategies(mergeStrategies);
+        console.log('Detected anlysisState updated in redux store', { prevAnalysisPanelStates, nextAnalysisPanelStates });
+      }
+
+      prevState = nextState
+    });
   }
 
   ns.init = init;
