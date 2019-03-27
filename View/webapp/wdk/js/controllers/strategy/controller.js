@@ -786,20 +786,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
             $("#diagram_" + strategy.frontId + " step_" + step.frontId +
                 "_sub div.crumb_details div.crumb_menu a.edit_step_link"))
         ) {
-          // unselect previously selected step
-          $Strategies.find(".selected").removeClass("selected");
-
-          var init_view_step;
-
-          if (isBoolean) {
-            $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
-                step.frontId + "']").addClass("selected");
-            init_view_step = step.back_step_Id + ".v";
-          } else {
-            $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
-                step.frontId + "_sub']").addClass("selected");
-            init_view_step = step.back_step_Id;
-          }
+          selectStep($Strategies, strategy, step, isBoolean);
 
           // insert results HTML into DOM
           wdk.resultsPage.resultsToGrid(data, ignoreFilters, $("#strategy_results .Workspace"));
@@ -1334,7 +1321,10 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
 
       if (stepChanged) {
         // update the strategy panel, but don't reload the results panel
-        fetchStrategies(_.partial(updateStrategies, _, true, false));
+        fetchStrategies(data => {
+          updateStrategies(data, true, false);
+          selectStep($("#Strategies"), uiState.strategy, uiState.step, uiState.isBoolean);
+        });
         console.log('Detected step updated in redux store', { prevStep, nextStep });
       }
 
@@ -1345,6 +1335,18 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
 
       prevState = nextState
     });
+  }
+
+  function selectStep($Strategies, strategy, step, isBoolean) {
+    // unselect previously selected step
+    $Strategies.find(".selected").removeClass("selected");
+    if (isBoolean) {
+      $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
+          step.frontId + "']").addClass("selected");
+    } else {
+      $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
+          step.frontId + "_sub']").addClass("selected");
+    }
   }
 
   ns.init = init;
