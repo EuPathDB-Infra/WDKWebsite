@@ -11,7 +11,6 @@ import './controllers/question';
 import './controllers/reporter';
 import './controllers/resultsPage';
 import './controllers/step';
-import './controllers/stepAnalysis';
 import './controllers/strategy/controller';
 import './controllers/strategy/error';
 import './controllers/strategy/model';
