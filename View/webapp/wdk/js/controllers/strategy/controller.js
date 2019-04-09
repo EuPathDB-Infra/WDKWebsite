@@ -1347,8 +1347,8 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     if (prevPanelState.length < nextPanelState.length) return false;
     // Tab removed, check if removed tab is a saved tab
     if (prevPanelState.length > nextPanelState.length) {
-      const removedSaved = _.differenceBy(prevPanelState, nextPanelState, tab => tab.analysisConfig.analysisId);
-      return removedSaved.some(tab => tab.analysisConfig.analysisId);
+      const removedSaved = _.differenceBy(prevPanelState, nextPanelState, tab => _.get(tab, 'analysisConfig.analysisId'));
+      return removedSaved.some(tab => _.get(tab, 'analysisConfig.analysisId'));
     }
     // We don't currently allow reordering, so we can simply compare states by index
     for (let i = 0; i < prevPanelState.length; i++) {
