@@ -167,9 +167,11 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
       var i = $("img#wizard-busy-image").clone();
       buttonText = $("div.filter-button").html();
       $("div.filter-button").html(i.show());
+      wdk.util.showLoading();
     } else {
       $("div.filter-button").html(buttonText);
       buttonText = null;
+      wdk.util.removeLoading();
     }
   }
 
@@ -256,6 +258,7 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
         break;
 
       case "next":
+        wdk.util.showLoading();
         $("#query_form").block({
           message: "Loading...",
           overlayCSS: {
@@ -345,6 +348,7 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
               $(element).data("inline-submit", element.onsubmit);
               element.onsubmit = null;
             });
+            wdk.util.removeLoading();
           });
         break;
 
