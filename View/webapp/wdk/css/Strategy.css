@@ -1051,6 +1051,7 @@ table.history_controls {
   width: 8em;
   height: 3em;
   margin-right: 0.3em;
+  box-sizing: content-box;
 }
 
 .diagram .stepBox div, .diagram .stepWrapper {
