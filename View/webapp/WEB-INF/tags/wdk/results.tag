@@ -85,7 +85,8 @@
 <c:set var="resultPanelProps">
   {
     "stepId": ${step.stepId},
-    "viewId": "${viewId}"
+    "viewId": "${viewId}",
+    "initialTab": "${param.selectedTab}"
   }
 </c:set>
 <div

@@ -34,6 +34,7 @@ public class ImportStrategyAction extends Action {
     private static final Logger logger = Logger.getLogger(ImportStrategyAction.class);
 
     private static final String SELECTED_TAB = "selectedTab";
+    private static final String STEP_ANALYSIS_TAB_PREFIX = "stepAnalysis:";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form,
@@ -97,10 +98,10 @@ public class ImportStrategyAction extends Action {
       if (selectedTabParam.equals("first_analysis")) {
         Collection<StepAnalysisInstance> analyses =
             wdkModel.getStepAnalysisFactory().getAppliedAnalyses(newStrategy.getLatestStep()).values();
-        return (analyses.isEmpty() ? null : "step-analysis-" + analyses.iterator().next().getAnalysisId());
+        return (analyses.isEmpty() ? null : STEP_ANALYSIS_TAB_PREFIX + analyses.iterator().next().getAnalysisId());
       }
-      else if (selectedTabParam.startsWith("step-analysis-")) {
-        String analysisIdStr = selectedTabParam.substring("step-analysis-".length());
+      else if (selectedTabParam.startsWith(STEP_ANALYSIS_TAB_PREFIX)) {
+        String analysisIdStr = selectedTabParam.substring(STEP_ANALYSIS_TAB_PREFIX.length());
         if (FormatUtil.isInteger(analysisIdStr)) {
           long oldAnalysisId = Long.parseLong(analysisIdStr);
           List<StepAnalysisInstance> oldAnalyses = new ArrayList<>(
@@ -112,7 +113,7 @@ public class ImportStrategyAction extends Action {
           }
           List<StepAnalysisInstance> newAnalyses = new ArrayList<>(
               wdkModel.getStepAnalysisFactory().getAppliedAnalyses(newStrategy.getLatestStep()).values());
-          return "step-analysis-" + newAnalyses.get(oldAnalysisIndex).getAnalysisId();
+          return STEP_ANALYSIS_TAB_PREFIX + newAnalyses.get(oldAnalysisIndex).getAnalysisId();
         }
         else {
           return null;
