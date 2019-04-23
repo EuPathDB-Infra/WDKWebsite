@@ -61,7 +61,7 @@ public class ProcessQuestionAction extends Action {
 
     // get question name first so it can be used in error reporting
     String qFullName = request.getParameter(CConstants.QUESTION_FULLNAME_PARAM);
-    String standAlone = request.getParameter("standAlone");
+    String redirectPath = request.getParameter("redirectPath");
     try {
       UserBean wdkUser = ActionUtility.getUser(request);
 
@@ -98,9 +98,9 @@ public class ProcessQuestionAction extends Action {
 
       logger.debug("Test run search [" + qFullName + "] and get # of results: " + step.getResultSize());
 
-      ActionForward standAloneFwd = mapping.findForward("standAlone");
-      if (standAloneFwd != null && standAlone != null && !standAlone.isEmpty()) {
-        String url = standAloneFwd.getPath().replace("{stepId}", Long.toString(step.getStepId())) + "?initialTab=" + standAlone;
+      if (redirectPath != null && !redirectPath.isEmpty()) {
+        String url = redirectPath
+            .replace("{stepId}", Long.toString(step.getStepId()));
         ActionForward forward = new ActionForward(url);
         forward.setRedirect(true);
         return forward;
