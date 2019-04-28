@@ -102,6 +102,9 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     // get strategies json from server and draw strategies ui
     initDisplay();
 
+    // remove search string from location
+    history.replaceState('', null, location.pathname);
+
     // strategyselect event fired when a step in a strategy is selected
     $("#Strategies")
       .on("strategyselect", ".diagram", function(e, strategy) {
@@ -205,7 +208,6 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     var tabQueryParamMatches = location.search.match(/\btab=(\w+)/);
     if (tabQueryParamMatches) {
       wdk.stratTabCookie.setCurrentTabCookie('application', tabQueryParamMatches[1]);
-      history.replaceState('', null, location.pathname);
     }
     var current = wdk.stratTabCookie.getCurrentTabCookie('application');
 
@@ -294,9 +296,12 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
   function initDisplay(){
     ns.stateString = '';
 
+    const selectedTabQueryParamMatches = location.search.match(/\bselectedTab=([^&]+)/);
+    const selectedTab = selectedTabQueryParamMatches ? selectedTabQueryParamMatches[1] : undefined;
+
     // it doesn't make sense for this to be in util
     wdk.util.showLoading();
-    fetchStrategies(updateStrategies);
+    fetchStrategies(_.partial(updateStrategies, _, _, _, _, selectedTab));
   }
 
   /**
@@ -330,10 +335,10 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    * @param {Boolean} ignoreFilters If `true` filters will not be reloaded.
    *   Otherwise they will be reloaded.
    */
-  function updateStrategies(data, ignoreFilters = false, reloadResultPanel = true, count = 1) {
+  function updateStrategies(data, ignoreFilters = false, reloadResultPanel = true, count = 1, selectedTab) {
     // Increment count if we refetch strategies with updated results
     var nextUpdateStrategies = _.partialRight(updateStrategies, ignoreFilters,
-                                              reloadResultPanel, count + 1);
+                                              reloadResultPanel, count + 1, selectedTab);
 
     // Fetch strategies with updated results. Used if root step results == -1
     var updateResults = _.partial(fetchStrategies, nextUpdateStrategies, {
@@ -391,7 +396,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
       }
     }
 
-    showStrategies(data.currentView, ignoreFilters, reloadResultPanel, data.state.length);
+    showStrategies(data.currentView, ignoreFilters, reloadResultPanel, data.state.length, undefined, selectedTab);
   }
 
   // Use this to sync server objects with client objects without redrawing
@@ -493,7 +498,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    *  updating strategies. This adds complexity and will probably removed in
    *  favor of event triggering.
    */
-  function showStrategies(view, ignoreFilters, reloadResultPanel, count, deferred){
+  function showStrategies(view, ignoreFilters, reloadResultPanel, count, deferred, selectedTab){
     $("#tab_strategy_results font.subscriptCount").text("(" + count + ")");
     var sC = 0;
     for (var s in ns.strats) {
@@ -555,10 +560,10 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
         var pagerOffset = view.pagerOffset;
         if (view.action !== undefined && view.action.match("^basket")) {
           newResults(initStr.frontId, initStp.frontId, isVenn, pagerOffset,
-              ignoreFilters, view.action, deferred);
+              ignoreFilters, view.action, deferred, selectedTab);
         } else {
           newResults(initStr.frontId, initStp.frontId, isVenn, pagerOffset,
-              ignoreFilters, null, deferred);
+              ignoreFilters, null, deferred, selectedTab);
         }
       }
     } else {
@@ -740,7 +745,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    * @param {Object} deferred jQuery.Deffered object created in `updateStrategies`
    */
   function newResults(f_strategyId, f_stepId, isBoolean, pagerOffset, ignoreFilters,
-      action, deferred) {
+      action, deferred, selectedTab) {
 
     if (f_strategyId == -1) {
       // don't show any results
@@ -755,6 +760,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     var step = strategy.getStep(f_stepId, true);
     var url = "showSummary.do";
     var data = {
+      selectedTab,
       strategy: strategy.backId,
       step: isBoolean ? step.back_boolean_Id : step.back_step_Id,
       resultsOnly: true,
