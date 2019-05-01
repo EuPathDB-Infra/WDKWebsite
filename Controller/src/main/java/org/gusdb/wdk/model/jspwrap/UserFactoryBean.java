@@ -43,15 +43,6 @@ public class UserFactoryBean {
         return new UserBean(user);
     }
 
-    public UserBean createUser(String email, 
-            Map<String, String> profileProperties,
-            Map<String, String> globalPreferences,
-            Map<String, String> projectPreferences, boolean resetPw) throws WdkModelException, WdkUserException {
-        User user = _userFactory.createUser(email, profileProperties,
-            globalPreferences, projectPreferences, resetPw);
-        return new UserBean(user);
-    }
-
     public UserBean login(UserBean guest, String email, String password)
             throws WdkModelException, WdkUserException {
         User user = _userFactory.login(guest.getUser(), email, password);
