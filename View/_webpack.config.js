@@ -1,5 +1,5 @@
 var path = require('path');
-var baseConfig = require('../../WDKClient/Build/base.webpack.config');
+var baseConfig = require('../../install/base.webpack.config');
 
 var scriptRoot = path.join(__dirname, '../../WDKClient/Dependencies/lib');
 var depPath = path.join.bind(null, scriptRoot);

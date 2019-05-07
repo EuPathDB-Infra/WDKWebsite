@@ -125,39 +125,6 @@
       <property name="component" value="View"/>
     </ant>
 
-    <echo message="Making JS and CSS bundles"/>
-
-    <exec dir="${projectsDir}/WDKClient/Build"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true"/>
-
-    <exec dir="${projectsDir}/WDKClient/Client"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true"/>
-
-    <exec dir="${projectsDir}/WDKWebsite/View"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true"/>
-
-    <condition property="webpack.env" value="--env.production" else="--env.development">
-      <isset property="optimizeWebAssets"/>
-    </condition>
-
-    <exec dir="${projectsDir}/WDKWebsite/View"
-          executable="${projectsDir}/WDKClient/Build/node_modules/.bin/webpack"
-          failonerror="true"
-          failifexecutionfails="true">
-          <arg line="${webpack.env}"/>
-          <arg line="--hide-modules"/>
-    </exec>
-
-    <copy todir="${webappTargetDir}">
-      <fileset dir="${projectsDir}/WDKWebsite/View/dist" />
-    </copy>
-
   </target>
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
