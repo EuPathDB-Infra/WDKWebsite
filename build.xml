@@ -108,6 +108,7 @@
 
   <target name="WDKWebsite-WebInstallation" depends="WDK-WebInstallation,
                                               WDKClient-WebInstallation,
+                                              WDKClient/Client-WebInstallation,
                                               WDKWebsite/Controller-WebInstallation,
                                               WDKWebsite/View-WebInstallation">
  </target>
