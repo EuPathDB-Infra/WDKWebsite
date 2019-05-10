@@ -26,16 +26,16 @@ public class RemoveFilterAction extends Action {
 
   public static final String PARAM_FILTER = "filter";
   public static final String PARAM_STEP = "step";
-  
+
   public static final String ATTR_SUMMARY = "summary";
-  
+
   private static final Logger LOG = Logger.getLogger(RemoveFilterAction.class);
 
   @Override
   public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
       HttpServletResponse response) throws Exception {
     LOG.debug("Entering RemoveFilterAction...");
- 
+
     UserBean user = ActionUtility.getUser(request);
     StepFactory stepFactory = ActionUtility.getWdkModel(servlet).getModel().getStepFactory();
 
@@ -47,7 +47,7 @@ public class RemoveFilterAction extends Action {
       throw new WdkUserException("Required step parameter is missing.");
     long stepId = Long.valueOf(strStepId);
     StepBean step ;
-    
+
     // before changing step, need to check if strategy is saved, if yes, make a copy.
     String strStrategyId = request.getParameter(CConstants.WDK_STRATEGY_ID_KEY);
     if (strStrategyId != null && !strStrategyId.isEmpty()) {
@@ -59,19 +59,19 @@ public class RemoveFilterAction extends Action {
         // map the old step id to the new one
         stepId = stepIdMap.get(stepId);
       }
-      step = new StepBean(user, stepFactory.getStepById(stepId));
+      step = new StepBean(user, stepFactory.getStepByValidId(stepId));
     }
     else {
-      step = new StepBean(user, StepUtilities.getStep(user.getUser(), stepId));
+      step = new StepBean(user, StepUtilities.getStepByValidStepId(user.getUser(), stepId));
     }
 
     AnswerValueBean answer = step.getAnswerValue();
     Filter filter = answer.getQuestion().getFilter(filterName);
- 
-    
+
+
     step.removeFilterOption(filter.getKey());
     step.saveParamFilters();
-    
+
     ActionForward showApplication = mapping.findForward(CConstants.SHOW_APPLICATION_MAPKEY);
 
     LOG.debug("Foward to " + CConstants.SHOW_APPLICATION_MAPKEY + ", " + showApplication);

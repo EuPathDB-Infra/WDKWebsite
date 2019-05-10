@@ -61,6 +61,7 @@ public class ProcessQuestionAction extends Action {
 
     // get question name first so it can be used in error reporting
     String qFullName = request.getParameter(CConstants.QUESTION_FULLNAME_PARAM);
+    String redirectPath = request.getParameter("redirectPath");
     try {
       UserBean wdkUser = ActionUtility.getUser(request);
 
@@ -97,6 +98,13 @@ public class ProcessQuestionAction extends Action {
 
       logger.debug("Test run search [" + qFullName + "] and get # of results: " + step.getResultSize());
 
+      if (redirectPath != null && !redirectPath.isEmpty()) {
+        String url = redirectPath
+            .replace("{stepId}", Long.toString(step.getStepId()));
+        ActionForward forward = new ActionForward(url);
+        forward.setRedirect(true);
+        return forward;
+      }
       /*
        * Charles Treatman 4/23/09 Add code here to set the current_application_tab cookie so that user will go
        * to the Run Strategies tab after running a question from a question page.

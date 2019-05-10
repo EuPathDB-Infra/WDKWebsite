@@ -1,5 +1,5 @@
 /* global wdk, wdkConfig */
-import { showLoginForm, showLoginWarning, showLogoutWarning } from 'wdk-client/Actions/UserActions';
+import { showLoginForm, showLoginWarning, showLogoutWarning } from 'wdk-client/Actions/UserSessionActions';
 import { getContext } from './clientAdapter';
 
 // FIXME Review module

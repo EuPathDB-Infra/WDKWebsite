@@ -452,7 +452,7 @@ public class UserBean {
    * @see org.gusdb.wdk.model.user.User#getStep(int)
    */
   public StepBean getStep(long stepId) throws WdkModelException {
-    return new StepBean(this, StepUtilities.getStep(_user, stepId));
+    return new StepBean(this, StepUtilities.getStepByValidStepId(_user, stepId));
   }
 
   /**
@@ -525,7 +525,7 @@ public class UserBean {
   }
 
   public StepBean getStepByCachedId() throws WdkModelException {
-    return new StepBean(this, StepUtilities.getStep(_user, _stepId));
+    return new StepBean(this, StepUtilities.getStepByValidStepId(_user, _stepId));
   }
 
   public StrategyBean copyStrategy(StrategyBean strategy, Map<Long, Long> stepIdMap)

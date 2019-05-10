@@ -125,6 +125,7 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
         $("#query_form").remove();
         $("#query_form_overlay").remove();
         disableAddStepButtons();
+        wdk.util.showLoading();
       },
       success: function(data) {
         wdk.step.hideDetails();
@@ -149,12 +150,14 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
         $("#query_form .qf_section").height($("#query_form").height());
 
         $("#query_form_overlay").css("z-index", 100).height($("body").height());
+        wdk.util.removeLoading();
       },
       error: function() {
         alert("Sorry. There has been an error getting the information from the server. \n" +
             "Please reload your page.\n" +
             "If this does not fix your problem, please contact us (link on top right) with a description.");
         enableAddStepButtons();
+        wdk.util.removeLoading();
       }
     });
   }
@@ -167,9 +170,11 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
       var i = $("img#wizard-busy-image").clone();
       buttonText = $("div.filter-button").html();
       $("div.filter-button").html(i.show());
+      wdk.util.showLoading();
     } else {
       $("div.filter-button").html(buttonText);
       buttonText = null;
+      wdk.util.removeLoading();
     }
   }
 
@@ -256,6 +261,7 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
         break;
 
       case "next":
+        wdk.util.showLoading();
         $("#query_form").block({
           message: "Loading...",
           overlayCSS: {
@@ -345,6 +351,7 @@ wdk.namespace("wdk.addStepPopup", function(ns, $) {
               $(element).data("inline-submit", element.onsubmit);
               element.onsubmit = null;
             });
+            wdk.util.removeLoading();
           });
         break;
 

@@ -421,11 +421,11 @@ wdk.namespace("window.wdk.strategy.view", function(ns, $) {
       controller.SetWeight(e.currentTarget, strategy.frontId, step.frontId);
     });
 
-    let updateOperation = preventEvent(function(e) {
+    let updateOperation = handleThenHide(preventEvent(function(e) {
       var url = 'wizard.do?action=revise&step=' + step.id + '&';
       wdk.addStepPopup.callWizard(url, e.currentTarget, null, null, 'submit',
                                   strategy.frontId);
-    });
+    }));
 
     // Attach event listeners
     $container

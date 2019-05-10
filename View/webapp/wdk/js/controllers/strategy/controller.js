@@ -3,6 +3,8 @@
 
 import _ from 'lodash';
 
+import { getContext } from '../../clientAdapter';
+
 /**
  * This file contains functions used to communicate strategy operations between
  * the client and the server.
@@ -30,7 +32,8 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
   // Current strategy and step objects
   var uiState = {
     strategy: null,
-    step: null
+    step: null,
+    isBoolean: null
   };
 
   function setUIState(newState) {
@@ -99,6 +102,9 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     // get strategies json from server and draw strategies ui
     initDisplay();
 
+    // remove search string from location
+    history.replaceState('', null, location.pathname);
+
     // strategyselect event fired when a step in a strategy is selected
     $("#Strategies")
       .on("strategyselect", ".diagram", function(e, strategy) {
@@ -123,10 +129,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
         $detailBox.find('.analyze_step_link').removeClass('disabled');
       });
 
-    // update state when analysis status changes
-    $(document).on('analysis:statuschange', function() {
-      fetchStrategies(mergeStrategies);
-    });
+    observeReduxStore();
 
     // Add delegate submit handler here for question form
     // The callback is called when the event bubbles up to the body
@@ -205,7 +208,6 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     var tabQueryParamMatches = location.search.match(/\btab=(\w+)/);
     if (tabQueryParamMatches) {
       wdk.stratTabCookie.setCurrentTabCookie('application', tabQueryParamMatches[1]);
-      history.replaceState('', null, location.pathname);
     }
     var current = wdk.stratTabCookie.getCurrentTabCookie('application');
 
@@ -294,9 +296,12 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
   function initDisplay(){
     ns.stateString = '';
 
+    const selectedTabQueryParamMatches = location.search.match(/\bselectedTab=([^&]+)/);
+    const selectedTab = selectedTabQueryParamMatches ? selectedTabQueryParamMatches[1] : undefined;
+
     // it doesn't make sense for this to be in util
     wdk.util.showLoading();
-    fetchStrategies(updateStrategies);
+    fetchStrategies(_.partial(updateStrategies, _, _, _, _, selectedTab));
   }
 
   /**
@@ -330,10 +335,10 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    * @param {Boolean} ignoreFilters If `true` filters will not be reloaded.
    *   Otherwise they will be reloaded.
    */
-  function updateStrategies(data, ignoreFilters = false, count = 1) {
+  function updateStrategies(data, ignoreFilters = false, reloadResultPanel = true, count = 1, selectedTab) {
     // Increment count if we refetch strategies with updated results
     var nextUpdateStrategies = _.partialRight(updateStrategies, ignoreFilters,
-                                              count + 1);
+                                              reloadResultPanel, count + 1, selectedTab);
 
     // Fetch strategies with updated results. Used if root step results == -1
     var updateResults = _.partial(fetchStrategies, nextUpdateStrategies, {
@@ -391,7 +396,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
       }
     }
 
-    showStrategies(data.currentView, ignoreFilters, data.state.length);
+    showStrategies(data.currentView, ignoreFilters, reloadResultPanel, data.state.length, undefined, selectedTab);
   }
 
   // Use this to sync server objects with client objects without redrawing
@@ -493,7 +498,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    *  updating strategies. This adds complexity and will probably removed in
    *  favor of event triggering.
    */
-  function showStrategies(view, ignoreFilters, count, deferred){
+  function showStrategies(view, ignoreFilters, reloadResultPanel, count, deferred, selectedTab){
     $("#tab_strategy_results font.subscriptCount").text("(" + count + ")");
     var sC = 0;
     for (var s in ns.strats) {
@@ -531,6 +536,9 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
         wrapper.height($("#Strategies").height() + 10);
       }
     }
+
+    if (reloadResultPanel === false) return;
+
     if (view.action !== undefined) {
       if (view.action == "share" || view.action == "save") {
         var x = $("a#" + view.action + "_" + view.actionStrat);
@@ -552,10 +560,10 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
         var pagerOffset = view.pagerOffset;
         if (view.action !== undefined && view.action.match("^basket")) {
           newResults(initStr.frontId, initStp.frontId, isVenn, pagerOffset,
-              ignoreFilters, view.action, deferred);
+              ignoreFilters, view.action, deferred, selectedTab);
         } else {
           newResults(initStr.frontId, initStp.frontId, isVenn, pagerOffset,
-              ignoreFilters, null, deferred);
+              ignoreFilters, null, deferred, selectedTab);
         }
       }
     } else {
@@ -737,7 +745,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
    * @param {Object} deferred jQuery.Deffered object created in `updateStrategies`
    */
   function newResults(f_strategyId, f_stepId, isBoolean, pagerOffset, ignoreFilters,
-      action, deferred) {
+      action, deferred, selectedTab) {
 
     if (f_strategyId == -1) {
       // don't show any results
@@ -752,6 +760,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
     var step = strategy.getStep(f_stepId, true);
     var url = "showSummary.do";
     var data = {
+      selectedTab,
       strategy: strategy.backId,
       step: isBoolean ? step.back_boolean_Id : step.back_step_Id,
       resultsOnly: true,
@@ -783,20 +792,7 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
             $("#diagram_" + strategy.frontId + " step_" + step.frontId +
                 "_sub div.crumb_details div.crumb_menu a.edit_step_link"))
         ) {
-          // unselect previously selected step
-          $Strategies.find(".selected").removeClass("selected");
-
-          var init_view_step;
-
-          if (isBoolean) {
-            $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
-                step.frontId + "']").addClass("selected");
-            init_view_step = step.back_step_Id + ".v";
-          } else {
-            $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
-                step.frontId + "_sub']").addClass("selected");
-            init_view_step = step.back_step_Id;
-          }
+          selectStep($Strategies, strategy, step, isBoolean);
 
           // insert results HTML into DOM
           wdk.resultsPage.resultsToGrid(data, ignoreFilters, $("#strategy_results .Workspace"));
@@ -830,9 +826,15 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
 
           setUIState({
             strategy: strategy,
-            step: step
+            step: step,
+            isBoolean: isBoolean
           });
         }
+
+        // Hack to make sure we load the latest changes to step in
+        // the new react result panel. This will break if WdkService
+        // changes step caching strategy.
+        wdk.getWdkService()._stepMap.clear();
 
         wdk.util.removeLoading(f_strategyId);
         wdk.basket.checkPageBasket();
@@ -1300,6 +1302,81 @@ wdk.namespace("window.wdk.strategy.controller", function (ns, $) {
       wdk.util.removeLoading(strategy.frontId);
     });
     return deferred;
+  }
+
+  async function observeReduxStore() {
+    const { store } = await getContext();
+    let prevState = store.getState();
+    store.subscribe(() => {
+      const nextState = store.getState();
+      const selectedStepId = uiState.step && (
+        uiState.isBoolean ? uiState.step.back_boolean_Id : uiState.step.back_step_Id );
+      const prevStep = prevState.steps.steps[selectedStepId];
+      const nextStep = nextState.steps.steps[selectedStepId];
+      const stepChanged = (
+        // if we're just getting the step, don't consider it changed
+        prevStep != null && nextStep != null &&
+        // use deep equality check since we clear the step cache when results are reloaded
+        !_.isEqual(prevStep.answerSpec, nextStep.answerSpec)
+      );
+
+      const nextAnalysisPanelStates = Object.values(nextState.stepAnalysis.analysisPanelStates);
+      const prevAnalysisPanelStates = Object.values(prevState.stepAnalysis.analysisPanelStates);
+      const savedAnalysisChanged = isSavedAnalysisChanged(nextAnalysisPanelStates, prevAnalysisPanelStates);
+
+      if (stepChanged) {
+        // update the strategy panel, but don't reload the results panel
+        fetchStrategies(data => {
+          updateStrategies(data, true, false);
+          selectStep($("#Strategies"), uiState.strategy, uiState.step, uiState.isBoolean);
+        });
+        console.log('Detected step updated in redux store', { prevStep, nextStep });
+      }
+
+      else if (savedAnalysisChanged) {
+        fetchStrategies(mergeStrategies);
+        console.log('Detected anlysisState updated in redux store', { prevAnalysisPanelStates, nextAnalysisPanelStates });
+      }
+
+      prevState = nextState
+    });
+  }
+
+  // If for some entry:
+  // 1. type goes from UNSAVED_ANALYSIS_STATE to SAVED_ANALYSIS_STATE
+  // 2. formStatus goes from SAVING_ANALYSIS to AWAITING_USER_SUBMISSION
+  // 3. a saved entry is removed
+  function isSavedAnalysisChanged(nextPanelState, prevPanelState) {
+    if (prevPanelState == null) return false;
+    // New tab added, we can ignore this since it will be not be a saved
+    // analysis, which does not impact the step.
+    if (prevPanelState.length < nextPanelState.length) return false;
+    // Tab removed, check if removed tab is a saved tab
+    if (prevPanelState.length > nextPanelState.length) {
+      const removedSaved = _.differenceBy(prevPanelState, nextPanelState, tab => _.get(tab, 'analysisConfig.analysisId'));
+      return removedSaved.some(tab => _.get(tab, 'analysisConfig.analysisId'));
+    }
+    // We don't currently allow reordering, so we can simply compare states by index
+    for (let i = 0; i < prevPanelState.length; i++) {
+      const prev = prevPanelState[i];
+      const next = nextPanelState[i];
+      // Analysis becomes saved
+      if (prev.type === 'UNSAVED_ANALYSIS_STATE' && next.type === 'SAVED_ANALYSIS_STATE') return true;
+      if (prev.formStatus === 'SAVING_ANALYSIS' && next.type === 'AWAITING_USER_SUBMISSION') return true;
+    }
+    return false;
+  }
+
+  function selectStep($Strategies, strategy, step, isBoolean) {
+    // unselect previously selected step
+    $Strategies.find(".selected").removeClass("selected");
+    if (isBoolean) {
+      $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
+          step.frontId + "']").addClass("selected");
+    } else {
+      $("#Strategies div#diagram_" + strategy.frontId + " div[id='step_" +
+          step.frontId + "_sub']").addClass("selected");
+    }
   }
 
   ns.init = init;

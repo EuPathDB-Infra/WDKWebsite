@@ -79,7 +79,9 @@ public abstract class MapActionForm extends ActionForm implements MapActionFormI
     public void copyFrom(MapActionFormIfc form) {
 
         // total kluge here to copy the ActionServlet from one form to another
-        setServlet(((MapActionForm)form).getServlet());
+        if (servlet == null) {
+          setServlet(((MapActionForm)form).getServlet());
+        }
 
         _values.clear();
         for (String key : form.getValues().keySet()) {
