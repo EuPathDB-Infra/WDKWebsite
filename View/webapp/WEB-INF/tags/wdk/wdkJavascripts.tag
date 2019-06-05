@@ -24,6 +24,6 @@
   <!--<imp:script charset="utf8" src="vendor.bundle.js"/>-->
   <!--<imp:script charset="utf8" src="wdk-client.bundle.js"/>-->
   <!--<imp:script charset="utf8" src="wdk.bundle.js"/>-->
-  <imp:script charset="utf8" src="site-client.bundle.js"></imp:script>
+  <!-- <imp:script charset="utf8" src="site-client.bundle.js"></imp:script> -->
 
 </jsp:root>
