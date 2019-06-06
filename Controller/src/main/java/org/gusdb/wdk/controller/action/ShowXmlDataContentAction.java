@@ -1,18 +1,18 @@
 package org.gusdb.wdk.controller.action;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 import org.gusdb.wdk.controller.CConstants;
 import org.gusdb.wdk.controller.actionutil.ActionUtility;
-import org.gusdb.wdk.controller.actionutil.WdkAction;
+import org.gusdb.wdk.model.WdkException;
+import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.jspwrap.XmlAnswerBean;
 import org.gusdb.wdk.model.jspwrap.XmlQuestionBean;
@@ -25,18 +25,21 @@ import org.gusdb.wdk.model.jspwrap.XmlQuestionSetBean;
  *    3) forwards control to a jsp page that displays the full result
  */
 
-public class ShowXmlDataContentAction extends Action {
+public class ShowXmlDataContentAction extends HttpServlet {
 
   @Override
-  public ActionForward execute(ActionMapping mapping, ActionForm form,
-      HttpServletRequest request, HttpServletResponse response) throws
-      Exception {
-    String xmlQName = request.getParameter(CConstants.NAME);
-    ActionUtility.getWdkModel(servlet).validateQuestionFullName(xmlQName);
-    XmlQuestionBean xmlQuestion = getXmlQuestionByFullName(xmlQName);
-    XmlAnswerBean xmlAnswer = xmlQuestion.getFullAnswer();
-    request.setAttribute(CConstants.WDK_XMLANSWER_KEY, xmlAnswer);
-    return getForward(xmlAnswer);
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    try {
+      String xmlQName = request.getParameter(CConstants.NAME);
+      ActionUtility.getWdkModel(this).validateQuestionFullName(xmlQName);
+      XmlQuestionBean xmlQuestion = getXmlQuestionByFullName(xmlQName);
+      XmlAnswerBean xmlAnswer = xmlQuestion.getFullAnswer();
+      request.setAttribute(CConstants.WDK_XMLANSWER_KEY, xmlAnswer);
+      request.getRequestDispatcher(getForward(xmlAnswer)).forward(request, response);
+    }
+    catch (WdkException e) {
+      throw new WdkRuntimeException("Could not process request.", e);
+    }
   }
 
   protected XmlQuestionBean getXmlQuestionByFullName(String qFullName) {
@@ -44,15 +47,15 @@ public class ShowXmlDataContentAction extends Action {
     String qSetName = qFullName.substring(0, dotI);
     String qName = qFullName.substring(dotI+1, qFullName.length());
 
-    WdkModelBean wdkModel = ActionUtility.getWdkModel(servlet);
+    WdkModelBean wdkModel = ActionUtility.getWdkModel(this);
 
     XmlQuestionSetBean wdkQuestionSet = wdkModel.getXmlQuestionSetsMap().get(qSetName);
     XmlQuestionBean wdkQuestion = wdkQuestionSet.getQuestionsMap().get(qName);
     return wdkQuestion;
   }
 
-  private ActionForward getForward (XmlAnswerBean xmlAnswer) {
-    ServletContext svltCtx = getServlet().getServletContext();
+  private String getForward (XmlAnswerBean xmlAnswer) {
+    ServletContext svltCtx = getServletContext();
     String customViewDir = CConstants.WDK_CUSTOM_VIEW_DIR
         + File.separator + CConstants.WDK_PAGES_DIR;
 
@@ -67,15 +70,10 @@ public class ShowXmlDataContentAction extends Action {
         + xmlAnswer.getQuestion().getFullName() + ".jsp";
     String customViewFile2 = customViewDir + File.separator
         + xmlAnswer.getRecordClass().getFullName() + ".jsp";
-    ActionForward forward = null;
-    if (WdkAction.resourceExists(customViewFile1, svltCtx)) {
-      forward = new ActionForward(customViewFile1);
-    } else if (WdkAction.resourceExists(customViewFile2, svltCtx)) {
-      forward = new ActionForward(customViewFile2);
-    } else {
-      forward = new ActionForward(defaultViewFile);
-    }
-    return forward;
+    return
+        ActionUtility.resourceExists(customViewFile1, svltCtx) ? customViewFile1 :
+        ActionUtility.resourceExists(customViewFile2, svltCtx) ? customViewFile2 :
+        defaultViewFile;
   }
 
 }

@@ -1,15 +1,19 @@
 package org.gusdb.wdk.controller.actionutil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.gusdb.wdk.model.Utilities;
+import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
 /**
@@ -38,6 +42,17 @@ public class ActionUtility {
     public static void applyModel(HttpServletRequest request, Map<String, Object> model) {
       for (Entry<String, Object> modelValue : model.entrySet()) {
         request.setAttribute(modelValue.getKey(), modelValue.getValue());
+      }
+    }
+
+    public static boolean resourceExists(String path, ServletContext servletContext)
+        throws WdkRuntimeException {
+      try {
+        URL url = servletContext.getResource(path);
+        return url != null;
+      }
+      catch (MalformedURLException e) {
+        throw new WdkRuntimeException("Malformed URL passed", e);
       }
     }
 

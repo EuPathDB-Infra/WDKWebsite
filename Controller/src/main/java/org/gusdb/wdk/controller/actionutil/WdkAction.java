@@ -1,8 +1,6 @@
 package org.gusdb.wdk.controller.actionutil;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +34,6 @@ import org.gusdb.wdk.controller.actionutil.ParameterValidator.SecondaryValidator
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkResourceChecker;
-import org.gusdb.wdk.model.WdkRuntimeException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 import org.gusdb.wdk.model.user.User;
@@ -465,18 +462,7 @@ public abstract class WdkAction implements SecondaryValidator, WdkResourceChecke
    */
   @Override
   public boolean wdkResourceExists(String name) {
-    return resourceExists(name, _servlet.getServletContext());
-  }
-
-  public static boolean resourceExists(String path, ServletContext servletContext)
-      throws WdkRuntimeException {
-    try {
-      URL url = servletContext.getResource(path);
-      return url != null;
-    }
-    catch (MalformedURLException e) {
-      throw new WdkRuntimeException("Malformed URL passed", e);
-    }
+    return ActionUtility.resourceExists(name, _servlet.getServletContext());
   }
 
   /**
