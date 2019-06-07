@@ -110,7 +110,7 @@ public class AnswerFilterLayoutBean {
         Map<String, Integer> instanceCountMap = layout.getInstanceCountMap();
         for (String name : instanceCountMap.keySet()) {
             Integer count = instanceCountMap.get(name);
-            beanMap.put(name, new Integer(count));
+            beanMap.put(name, Integer.valueOf(count));
         }
         return beanMap;
     }
@@ -125,7 +125,7 @@ public class AnswerFilterLayoutBean {
         Map<String, Integer> sortedFamilyCountMap = layout.getSortedFamilyCountMap();
         for (String name : sortedFamilyCountMap.keySet()) {
             Integer count = sortedFamilyCountMap.get(name);
-            beanMap.put(name, new Integer(count));
+            beanMap.put(name, Integer.valueOf(count));
         }
         return beanMap;
     }
@@ -140,7 +140,7 @@ public class AnswerFilterLayoutBean {
         Map<String, Integer> superFamilyCountMap = layout.getSuperFamilyCountMap();
         for (String name : superFamilyCountMap.keySet()) {
             Integer count = superFamilyCountMap.get(name);
-            beanMap.put(name, new Integer(count));
+            beanMap.put(name, Integer.valueOf(count));
         }
         return beanMap;
     }

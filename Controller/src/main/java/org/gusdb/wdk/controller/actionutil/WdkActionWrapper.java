@@ -37,7 +37,7 @@ public class WdkActionWrapper extends Action {
 			try {
 				Class<?> actionClass = Class.forName(actionClassName);
 				if (WdkAction.class.isAssignableFrom(actionClass)) {
-					WdkAction action = (WdkAction)actionClass.newInstance();
+					WdkAction action = (WdkAction)actionClass.getDeclaredConstructor().newInstance();
 					return action.execute(mapping, form, request, response, getServlet());
 				}
 				throw new WdkRuntimeException("The class specified in struts-config.xml (" +
