@@ -44,7 +44,7 @@ wdk.namespace("window.wdk.strategy.view", function(ns, $) {
   //Simple Steps
   var ss_rename_popup = "Rename this search";
   var ss_view_popup = "View the results of this search in the Results area below";
-  var ss_analyze_popup = "Analyze the results of this search in the Results area below";
+  var ss_analyze_popup = "Analyze the results of the selected search in the Results area below";
   var ss_edit_popup = "Revise the parameters of this search and/or its " +
       "combine operation";
   var ss_expand_popup = "Expand this step in a new panel to add nested steps." +
@@ -369,13 +369,12 @@ wdk.namespace("window.wdk.strategy.view", function(ns, $) {
     });
 
     let analyze = handleThenHide(function() {
-      var $button = $('#add-analysis button');
-
-      $button.trigger('click');
-
+      var $button = $('#add-analysis');
       // scroll to section
       $(window).scrollTop($button.offset().top - 10);
+      $button.trigger('click');
     });
+
 
     // aka, revise
     let edit = handleThenHide(function(e) {
