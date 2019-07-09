@@ -11,13 +11,13 @@ import org.gusdb.wdk.model.answer.spec.AnswerSpec;
 import org.gusdb.wdk.model.query.BooleanOperator;
 import org.gusdb.wdk.model.query.BooleanQuery;
 import org.gusdb.wdk.model.query.param.AnswerParam;
-import org.gusdb.wdk.model.query.param.StringParam;
+import org.gusdb.wdk.model.query.param.EnumParam;
 import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.record.RecordClass;
 import org.gusdb.wdk.model.user.Step;
 import org.gusdb.wdk.model.user.StepContainer;
-import org.gusdb.wdk.model.user.User;
 import org.gusdb.wdk.model.user.StepContainer.ListStepContainer;
+import org.gusdb.wdk.model.user.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class BooleanQuestionTest {
       AnswerParam rightParam = booleanQuery.getRightOperandParam();
       paramValues.put(rightParam.getName(), String.valueOf(rightStep.get().getStepId()));
 
-      StringParam operatorParam = booleanQuery.getOperatorParam();
+      EnumParam operatorParam = booleanQuery.getOperatorParam();
       paramValues.put(operatorParam.getName(), operator.getOperator(appDb.getPlatform()));
 
       AnswerValue answerValue = AnswerValueFactory.makeAnswer(user, AnswerSpec
