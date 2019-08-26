@@ -11,7 +11,7 @@
     <module>Controller</module>
     <module>View</module>
   </modules>
-  
+
   <parent>
     <groupId>org.gusdb</groupId>
     <artifactId>base-pom</artifactId>
@@ -39,7 +39,7 @@
       <id>eupathdb</id>
       <name>EuPathDB Project Dependencies</name>
       <layout>default</layout>
-      <url>https://cbilsvn.pmacs.upenn.edu/svn/gus/FgpUtil/trunk/Dependencies/</url>
+      <url>https://raw.githubusercontent.com/EuPathDB/FgpUtil/master/Dependencies/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
