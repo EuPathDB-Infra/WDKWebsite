@@ -24,6 +24,7 @@
     "@types/react-redux": "^6.0.7",
     "@types/react-router": "^4.0.22",
     "@types/react-router-dom": "^4.2.4",
+    "@types/react-select": "^3.0.4",
     "babel-polyfill": "^6.26.0",
     "custom-event-polyfill": "^1.0.6",
     "jquery-migrate": "1.2.1",

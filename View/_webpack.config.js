@@ -49,9 +49,10 @@ var exposeModules = [
   { module: 'react-dom',         expose: 'ReactDOM' },
   { module: 'react-redux',       expose: 'ReactRedux' },
   { module: 'react-router',      expose: 'ReactRouter' },
+  { module: 'react-select',      export: 'ReactSelect' },
   { module: 'redux',             expose: 'Redux' },
   { module: 'redux-observable',  expose: 'ReduxObservable' },
-  { module: 'reselect',       expose: 'Reselect' },
+  { module: 'reselect',          expose: 'Reselect' },
   { module: 'rxjs',              expose: 'Rx' },
   { module: 'rxjs/operators',    expose: 'RxOperators' },
 ];
