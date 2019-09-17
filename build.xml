@@ -9,48 +9,6 @@
 
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
-  <!-- oooooooooooooooooooooooooo    Checkout    oooooooooooooooooooooooooo -->
-  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
-
-  <target name="WDKWebsite-ChildCheckout">
-    <available file="${projectsDir}/WDK" type="dir"  property="WDK.present" />
-    <antcall target="WDK-Checkout"/>
-    <available file="${projectsDir}/WDKClient" type="dir"  property="WDKClient.present" />
-    <antcall target="WDKClient-Checkout"/>
-  </target>
-
-  <target name="WDK-Checkout" unless="WDK.present">
-    <ant target="defaultProjectCheckout" inheritAll="false">
-      <property name="svnurl" value="https://cbilsvn.pmacs.upenn.edu/svn/gus/WDK"/>
-      <property name="project" value="WDK"/>
-      <property name="version" value="WDK_version_1-28"/>
-    </ant>
-  </target>
-
-  <target name="WDKClient-Checkout" unless="WDKClient.present">
-    <ant target="defaultProjectCheckout" inheritAll="false">
-      <property name="svnurl" value="https://cbilsvn.pmacs.upenn.edu/svn/gus/WDKClient"/>
-      <property name="project" value="WDKClient"/>
-      <property name="version" value="WDK_version_1-28"/>
-    </ant>
-  </target>
-
-    
-  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
-  <!-- oooooooooooooooooooooooooo    Update    oooooooooooooooooooooooooooo -->
-  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
-
-  <target name="WDKWebsite-ChildUpdate">
-    <ant target="defaultProjectUpdate">
-      <property name="project" value="WDK"/>
-    </ant>
-    <ant target="defaultProjectUpdate">
-      <property name="project" value="WDKClient"/>
-    </ant>
-  </target>
-
-
-  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooo  Installation  oooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
@@ -60,15 +18,15 @@
                                                   WDKWebsite/Controller-Installation,
                                                   WDKWebsite/View-Installation">
     <ant target="defaultProjectInstall">
-      <property name="project" value="WDKWebsite"/>
+      <property name="project" value="WDKWebsite" />
     </ant>
   </target>
 
   <target name="WDKWebsite-MavenInstallation">
     <ant target="mavenBuildProject">
-      <property name="project" value="WDKWebsite"/>
+      <property name="project" value="WDKWebsite" />
     </ant>
-    <property name="alreadyBuilt" value="true"/>
+    <property name="alreadyBuilt" value="true" />
   </target>
 
 
@@ -76,29 +34,29 @@
 
   <!-- XXX Do we need this here? -->
   <target name="WDKWebsite-Installation-postprocess">
-    <echo message="Postprocessing the WDKWebsite installation"/>
+    <echo message="Postprocessing the WDKWebsite installation" />
 
-    <replace dir="${targetDir}/bin" 
-             propertyFile="${targetDir}/config/replacements.prop" > 
+    <replace dir="${targetDir}/bin"
+             propertyFile="${targetDir}/config/replacements.prop">
       <include name="**/*" />
-      <replacefilter token="@perl@" property="perl"/>
-    </replace> 
-    
+      <replacefilter token="@perl@" property="perl" />
+    </replace>
+
   </target>
 
   <!-- ooooooooooooooooooooooo  Install Components  ooooooooooooooooooooooo -->
 
   <target name="WDKWebsite/Controller-Installation">
     <ant target="defaultComponentInstall">
-      <property name="project" value="WDKWebsite"/>
-      <property name="component" value="Controller"/>
+      <property name="project" value="WDKWebsite" />
+      <property name="component" value="Controller" />
     </ant>
-  </target>  
+  </target>
 
   <target name="WDKWebsite/View-Installation">
     <ant target="defaultComponentInstall">
-      <property name="project" value="WDKWebsite"/>
-      <property name="component" value="View"/>
+      <property name="project" value="WDKWebsite" />
+      <property name="component" value="View" />
     </ant>
   </target>
 
@@ -111,21 +69,20 @@
                                               WDKClient/Client-WebInstallation,
                                               WDKWebsite/Controller-WebInstallation,
                                               WDKWebsite/View-WebInstallation">
- </target>
+  </target>
 
   <target name="WDKWebsite/Controller-WebInstallation">
     <ant target="defaultWebComponentInstall">
-      <property name="project" value="WDKWebsite"/>
-      <property name="component" value="Controller"/>
+      <property name="project" value="WDKWebsite" />
+      <property name="component" value="Controller" />
     </ant>
   </target>
 
   <target name="WDKWebsite/View-WebInstallation" depends="installYarnBin">
     <ant target="defaultWebComponentInstall">
-      <property name="project" value="WDKWebsite"/>
-      <property name="component" value="View"/>
+      <property name="project" value="WDKWebsite" />
+      <property name="component" value="View" />
     </ant>
-
   </target>
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
@@ -133,11 +90,11 @@
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
   <target name="WDKWebsite-Release">
-    
+
     <ant target="defaultProjectRelease">
-      <property name="cvsroot" value=":ext:cvs.sanger.ac.uk:/cvsroot/GUS"/>
+      <property name="cvsroot" value=":ext:cvs.sanger.ac.uk:/cvsroot/GUS" />
     </ant>
-  </target>  
+  </target>
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooo  Distributable  ooooooooooooooooooooooooo -->
@@ -146,11 +103,11 @@
   <target name="WDKWebsite-Distributable">
 
     <copy todir="${targetDir}">
-      <fileset dir="${projectsDir}" >
+      <fileset dir="${projectsDir}">
         <exclude name="**/CVS/*" />
       </fileset>
-    </copy>  
-  </target>  
+    </copy>
+  </target>
 
 </project>
 
