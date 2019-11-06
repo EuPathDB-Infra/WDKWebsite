@@ -83,9 +83,6 @@ wdk.namespace('wdk', ns => {
         resolverName == null ? defaultResolver : get(window, resolverName);
       let [ ViewController, context ] =
         await Promise.all([ resolver(name), getContext() ]);
-      let viewControllerRef = React.createRef();
-
-      $el.data('viewControllerRef', viewControllerRef);
 
       observeMutations(el, {
         onPropsChanged(props: any) {
@@ -104,7 +101,7 @@ wdk.namespace('wdk', ns => {
                     {
                       value: makeCompositePluginComponent(context.pluginConfig)
                     },
-                    React.createElement(ViewController as any, { ...props, ref: viewControllerRef })
+                    React.createElement(ViewController as any, props)
                   )
                 )
               )
