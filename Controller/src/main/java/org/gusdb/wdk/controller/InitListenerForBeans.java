@@ -1,6 +1,5 @@
 package org.gusdb.wdk.controller;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -31,10 +30,10 @@ public class InitListenerForBeans implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     try {
       // assign WdkModelBean onto context for JSPs/tags to read (service code will use the raw WdkModel)
-      ServletContext servletContext = sce.getServletContext();
-      WdkModel wdkModel = WdkInitializer.getWdkModel(servletContext);
+      var applicationScope = new ServletApplicationContext(sce.getServletContext());
+      WdkModel wdkModel = WdkInitializer.getWdkModel(applicationScope);
       if (wdkModel == null) { /* no model to add */ return; }
-      servletContext.setAttribute(Utilities.WDK_MODEL_BEAN_KEY, new WdkModelBean(wdkModel));
+      applicationScope.put(Utilities.WDK_MODEL_BEAN_KEY, new WdkModelBean(wdkModel));
       LOG.info("Successfully assigned WdkModelBean and subscribed to NewUserEvents.");
     }
     catch(Exception e) {
