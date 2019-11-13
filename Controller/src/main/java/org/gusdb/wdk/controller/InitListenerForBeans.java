@@ -4,6 +4,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.gusdb.fgputil.web.servlet.HttpServletApplicationContext;
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
@@ -30,7 +31,7 @@ public class InitListenerForBeans implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     try {
       // assign WdkModelBean onto context for JSPs/tags to read (service code will use the raw WdkModel)
-      var applicationScope = new ServletApplicationContext(sce.getServletContext());
+      var applicationScope = new HttpServletApplicationContext(sce.getServletContext());
       WdkModel wdkModel = WdkInitializer.getWdkModel(applicationScope);
       if (wdkModel == null) { /* no model to add */ return; }
       applicationScope.put(Utilities.WDK_MODEL_BEAN_KEY, new WdkModelBean(wdkModel));
