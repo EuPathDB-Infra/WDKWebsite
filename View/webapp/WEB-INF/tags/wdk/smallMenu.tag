@@ -10,7 +10,7 @@
   
   <div id="nav-top-div">
 	  <ul id="nav-top">
-	    <li><a href="${pageContext.request.contextPath}/home.do">Home</a></li>
+	    <li><a href="${pageContext.request.contextPath}/app">Home</a></li>
 	    <imp:login/>
 	    <li class="nav-last no-divider">
 	      <c:set var="supportEmail" value="${wdkModel.model.modelConfig.supportEmail}"/>

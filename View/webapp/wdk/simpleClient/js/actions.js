@@ -53,7 +53,7 @@ var Util = (function() {
     if (numRecords < 1) numRecords = 10;
     return {
       answerSpec: {
-        questionName: question.name,
+        questionName: question.fullName,
         parameters: paramPack,
         filters: []
       },
@@ -80,7 +80,7 @@ var Util = (function() {
     if (numRecords < 1) numRecords = 10;
     return {
       answerSpec: {
-        questionName: question.name,
+        questionName: question.fullName,
         parameters: paramPack,
         filters: []
       },

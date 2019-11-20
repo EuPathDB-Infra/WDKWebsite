@@ -1,15 +1,12 @@
 package org.gusdb.wdk.controller;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
-import org.gusdb.fgputil.events.Events;
-import org.gusdb.wdk.events.NewUserEvent;
+import org.gusdb.fgputil.web.servlet.HttpServletApplicationContext;
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkModel;
-import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
 /**
@@ -34,19 +31,10 @@ public class InitListenerForBeans implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     try {
       // assign WdkModelBean onto context for JSPs/tags to read (service code will use the raw WdkModel)
-      ServletContext servletContext = sce.getServletContext();
-      WdkModel wdkModel = WdkInitializer.getWdkModel(servletContext);
+      var applicationScope = new HttpServletApplicationContext(sce.getServletContext());
+      WdkModel wdkModel = WdkInitializer.getWdkModel(applicationScope);
       if (wdkModel == null) { /* no model to add */ return; }
-      servletContext.setAttribute(Utilities.WDK_MODEL_BEAN_KEY, new WdkModelBean(wdkModel));
-  
-      // replace any previous UserBean object placed on session with one for new user
-      Events.subscribe(event -> {
-        NewUserEvent userEvent = (NewUserEvent)event;
-        LOG.info("Assigning session UserBean for " + userEvent.getNewUser().getDisplayName());
-        userEvent.getSession().setAttribute(Utilities.WDK_USER_BEAN_KEY,
-            new UserBean(userEvent.getNewUser()));
-      }, NewUserEvent.class);
-
+      applicationScope.put(Utilities.WDK_MODEL_BEAN_KEY, new WdkModelBean(wdkModel));
       LOG.info("Successfully assigned WdkModelBean and subscribed to NewUserEvents.");
     }
     catch(Exception e) {

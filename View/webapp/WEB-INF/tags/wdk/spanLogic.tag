@@ -1,6 +1,7 @@
 <%@ taglib prefix="html" uri="http://struts.apache.org/tags-html" %>
 <%@ taglib prefix="imp" tagdir="/WEB-INF/tags/imp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <c:set var="question" value="${requestScope.wdkQuestion}"/>
 <c:set var="importStep" value="${requestScope.importStep}"/>
 <c:set var="wdkStep" value="${requestScope.wdkStep}"/>

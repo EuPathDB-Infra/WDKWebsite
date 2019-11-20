@@ -1,10 +1,8 @@
-__webpack_public_path__ = wdkConfig.assetsUrl + '/';
+// Public javascript API for working with Wdk
+export * from './wdk';
 
 import $ from 'jquery';
 import _ from 'lodash';
-
-// Public javascript API for working with Wdk
-export * from './wdk';
 
 // window.wdk is internal and deprecated for public use
 let wdk = window.wdk;

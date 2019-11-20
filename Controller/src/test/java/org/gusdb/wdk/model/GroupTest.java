@@ -97,7 +97,7 @@ public class GroupTest {
                 Map<String, Param> params = question.getParamMap();
                 if (params.size() == 0) continue;
                 
-                Map<Group, Map<String, Param>> groups = question.getParamMapByGroups();
+                Map<Group, Map<String, Param>> groups = question.getQuery().getParamMapByGroups();
                 Assert.assertTrue(groups.size() > 0); 
             }
         }

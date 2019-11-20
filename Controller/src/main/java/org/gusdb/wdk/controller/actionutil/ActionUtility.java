@@ -1,17 +1,19 @@
 package org.gusdb.wdk.controller.actionutil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.gusdb.wdk.model.Utilities;
 import org.gusdb.wdk.model.WdkRuntimeException;
-import org.gusdb.wdk.model.jspwrap.UserBean;
 import org.gusdb.wdk.model.jspwrap.WdkModelBean;
 
 /**
@@ -20,19 +22,6 @@ import org.gusdb.wdk.model.jspwrap.WdkModelBean;
  * @author xingao
  */
 public class ActionUtility {
-
-    public static UserBean getUser(HttpServletRequest request) {
-        try {
-            UserBean user = (UserBean)request.getSession().getAttribute(Utilities.WDK_USER_BEAN_KEY);
-            if (user == null) {
-              throw new IllegalStateException("No user present on session. This should never happen.");
-            }
-            return user;
-        }
-        catch (Exception ex) {
-            throw new WdkRuntimeException(ex);
-        }
-    }
 
     public static WdkModelBean getWdkModel(HttpServlet servlet) {
         return (WdkModelBean)servlet.getServletContext().getAttribute(Utilities.WDK_MODEL_BEAN_KEY);
@@ -55,4 +44,16 @@ public class ActionUtility {
         request.setAttribute(modelValue.getKey(), modelValue.getValue());
       }
     }
+
+    public static boolean resourceExists(String path, ServletContext servletContext)
+        throws WdkRuntimeException {
+      try {
+        URL url = servletContext.getResource(path);
+        return url != null;
+      }
+      catch (MalformedURLException e) {
+        throw new WdkRuntimeException("Malformed URL passed", e);
+      }
+    }
+
 }

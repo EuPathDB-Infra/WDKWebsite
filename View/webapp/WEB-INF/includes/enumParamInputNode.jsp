@@ -4,7 +4,6 @@ Provides form input element for a given term tree node of EnumParam.
 --%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="bean" uri="http://struts.apache.org/tags-bean" %>
 <%@ taglib prefix="html" uri="http://struts.apache.org/tags-html" %>
 
 <c:set var="qP" value="${requestScope.recurse_enum_param}"/>

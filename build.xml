@@ -66,6 +66,7 @@
 
   <target name="WDKWebsite-WebInstallation" depends="WDK-WebInstallation,
                                               WDKClient-WebInstallation,
+                                              WDKClient/Client-WebInstallation,
                                               WDKWebsite/Controller-WebInstallation,
                                               WDKWebsite/View-WebInstallation">
   </target>
@@ -77,69 +78,12 @@
     </ant>
   </target>
 
-  <target name="WDKWebsite/View-WebInstallation"
-          depends="yarnBinCheck,installYarnBin">
+  <target name="WDKWebsite/View-WebInstallation" depends="installYarnBin">
     <ant target="defaultWebComponentInstall">
       <property name="project" value="WDKWebsite" />
       <property name="component" value="View" />
     </ant>
-
-    <echo message="Making JS and CSS bundles" />
-
-    <exec dir="${projectsDir}/WDKClient/Build"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true" />
-
-    <exec dir="${projectsDir}/WDKClient/Client"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true" />
-
-    <exec dir="${projectsDir}/WDKWebsite/View"
-          executable="yarn"
-          failonerror="true"
-          failifexecutionfails="true" />
-
-    <condition property="webpack.env" value="--env.production"
-               else="--env.development">
-      <isset property="optimizeWebAssets" />
-    </condition>
-
-    <exec dir="${projectsDir}/WDKWebsite/View"
-          executable="${projectsDir}/WDKClient/Build/node_modules/.bin/webpack"
-          failonerror="true"
-          failifexecutionfails="true">
-      <arg line="${webpack.env}" />
-      <arg line="--hide-modules" />
-    </exec>
-
-    <copy todir="${webappTargetDir}">
-      <fileset dir="${projectsDir}/WDKWebsite/View/dist" />
-    </copy>
-
   </target>
-
-  <target name="installYarnBin" unless="hasYarnBin">
-    <!-- unpack yarn tgz into targetDirectory -->
-    <echo message="Installing yarn binary" />
-    <mkdir dir="${targetDir}/lib/yarn" />
-    <mkdir dir="${targetDir}/bin" />
-    <exec executable="tar"
-          dir="${targetDir}/lib/yarn"
-          failonerror="true"
-          failifexecutionfails="true">
-      <arg
-        line="xzf ${projectsDir}/WDKWebsite/View/yarn.tar.gz --strip-components 1" />
-    </exec>
-    <symlink overwrite="true" link="${targetDir}/bin/yarn"
-             resource="${targetDir}/lib/yarn/bin/yarn" />
-  </target>
-
-  <target name="yarnBinCheck">
-    <available property="hasYarnBin" file="${targetDir}/bin/yarn" />
-  </target>
-
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooo  Release  ooooooooooooooooooooooooooooo -->

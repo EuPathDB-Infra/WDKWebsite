@@ -16,8 +16,10 @@
 /target/
 /*/target/
 
+
 # Dependencies
 node_modules/
+yarn.lock
 
 
 # Gradle meta
@@ -35,3 +37,7 @@ node_modules/
 # Exported from svn:ignore
 #
 target
+
+# file backups
+*~
+\#*#

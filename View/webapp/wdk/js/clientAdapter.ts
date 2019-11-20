@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 import { Provider } from 'react-redux';
 
+import WdkService, { WdkServiceContext } from 'wdk-client/Service/WdkService';
 import { PluginContext, makeCompositePluginComponent } from 'wdk-client/Utils/ClientPlugin';
 
 import {
@@ -83,9 +84,6 @@ wdk.namespace('wdk', ns => {
         resolverName == null ? defaultResolver : get(window, resolverName);
       let [ ViewController, context ] =
         await Promise.all([ resolver(name), getContext() ]);
-      let viewControllerRef = React.createRef();
-
-      $el.data('viewControllerRef', viewControllerRef);
 
       observeMutations(el, {
         onPropsChanged(props: any) {
@@ -100,11 +98,15 @@ wdk.namespace('wdk', ns => {
                   Router,
                   { history: context.history },
                   React.createElement(
-                    PluginContext.Provider,
-                    {
-                      value: makeCompositePluginComponent(context.pluginConfig)
-                    },
-                    React.createElement(ViewController as any, { ...props, ref: viewControllerRef })
+                    WdkServiceContext.Provider,
+                    { value: context.wdkService },
+                    React.createElement(
+                      PluginContext.Provider,
+                      {
+                        value: makeCompositePluginComponent(context.pluginConfig)
+                      },
+                      React.createElement(ViewController as any, props)
+                    )
                   )
                 )
               )
