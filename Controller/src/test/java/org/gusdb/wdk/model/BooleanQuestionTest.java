@@ -12,6 +12,7 @@ import org.gusdb.wdk.model.query.BooleanOperator;
 import org.gusdb.wdk.model.query.BooleanQuery;
 import org.gusdb.wdk.model.query.param.AnswerParam;
 import org.gusdb.wdk.model.query.param.EnumParam;
+import org.gusdb.wdk.model.question.BooleanQuestion;
 import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.record.RecordClass;
 import org.gusdb.wdk.model.user.Step;
@@ -66,7 +67,7 @@ public class BooleanQuestionTest {
 
     private int getBooleanResultSizeWithOperator(BooleanOperator operator) throws WdkModelException {
 
-      Question booleanQuestion = wdkModel.addBooleanQuestion(recordClass);
+      Question booleanQuestion = new BooleanQuestion(recordClass);
       BooleanQuery booleanQuery = (BooleanQuery) booleanQuestion.getQuery();
       Map<String, String> paramValues = new LinkedHashMap<String, String>();
 
