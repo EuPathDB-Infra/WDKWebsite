@@ -70,9 +70,9 @@ var Searches = React.createClass({
   _renderSearch(search, index) {
     var name = _.find(search, { name: 'target_name' });
     var names = [
-      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNASeq (fold change)',
-      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNASeq (fold change w/ pvalue)',
-      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNASeq (percentile)'
+      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNA-Seq (fold change)',
+      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNA-Seq (fold change w/ pvalue)',
+      'Identify Genes based on P berghei ANKA 5 asexual and sexual stage transcriptomes RNA-Seq (percentile)'
     ];
     return (
       <li key={index}><a href={`/a/showQuestion.do?questionFullName=${name.value}`}>{names[index]}</a></li>
