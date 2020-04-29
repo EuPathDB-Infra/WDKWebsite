@@ -1,47 +1,39 @@
-/**
- * 
- */
 package org.gusdb.wdk.model;
 
-import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-import org.gusdb.wdk.model.question.Question;
-import org.gusdb.wdk.model.question.QuestionSet;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author xingao
- * 
  */
 public class PropertyListTest {
 
-    private static WdkModel wdkModel;
+  private static WdkModel wdkModel;
 
-    public PropertyListTest() throws Exception {
-        wdkModel = UnitTestHelper.getModel();
-    }
+  public PropertyListTest() throws Exception {
+    wdkModel = UnitTestHelper.getModel();
+  }
 
-    @Test
-    public void testGetPropertyList() {
-        Map<String, String[]> defaultPropertyList = wdkModel.getDefaultPropertyLists();
+  @Test
+  public void testGetPropertyList() {
+    var defaultPropertyList = wdkModel.getDefaultPropertyLists();
 
-        for (QuestionSet questionSet : wdkModel.getAllQuestionSets()) {
-            for (Question question : questionSet.getQuestions()) {
-                Map<String, String[]> propertyMap = question.getPropertyLists();
-                for (String propName : propertyMap.keySet()) {
-                    String[] properties = propertyMap.get(propName);
-                    Assert.assertTrue("property list is empty: " + propName,
-                            properties.length > 0);
-                }
-
-                // default properties should appear in the property list too
-                for (String propName : defaultPropertyList.keySet()) {
-                    Assert.assertTrue(
-                            "default prop doesn't exist: " + propName,
-                            propertyMap.containsKey(propName));
-                }
-            }
+    for (var questionSet : wdkModel.getAllQuestionSets()) {
+      for (var question : questionSet.getQuestions()) {
+        var propertyMap = question.getPropertyLists();
+        for (var propName : propertyMap.keySet()) {
+          var properties = propertyMap.get(propName);
+          assertTrue(properties.length > 0,
+            "property list is empty: " + propName);
         }
+
+        // default properties should appear in the property list too
+        for (var propName : defaultPropertyList.keySet()) {
+          assertTrue(propertyMap.containsKey(propName),
+            "default prop doesn't exist: " + propName);
+        }
+      }
     }
+  }
 }

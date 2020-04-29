@@ -3,7 +3,7 @@ package org.gusdb.wdk.model;
 import org.gusdb.wdk.model.RngAnnotations.FieldSetter;
 import org.gusdb.wdk.model.query.Column;
 import org.gusdb.wdk.model.record.attribute.QueryColumnAttributeField;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RngAnnotationTest {
 

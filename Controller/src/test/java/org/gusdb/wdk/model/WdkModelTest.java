@@ -1,56 +1,48 @@
-/**
- * 
- */
 package org.gusdb.wdk.model;
 
-import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jerric
- * 
  */
 public class WdkModelTest {
 
-    private WdkModel wdkModel;
+  private final WdkModel wdkModel;
 
-    public WdkModelTest() throws Exception {
-        wdkModel = UnitTestHelper.getModel();
+  public WdkModelTest() throws Exception {
+    wdkModel = UnitTestHelper.getModel();
+  }
+
+  /**
+   * get model name, display name, and version
+   */
+  @Test
+  public void testGetModelInfo() {
+    var name = wdkModel.getProjectId();
+    assertTrue(name != null && name.length() > 0, "the model name is not set");
+
+    var displayName = wdkModel.getDisplayName();
+    assertTrue(displayName != null && displayName.length() > 0,
+      "the model display name is not set");
+
+    var version = wdkModel.getVersion();
+    assertTrue(version != null && version.length() > 0,
+      "the model version is not set");
+  }
+
+  /**
+   * test getting default property lists
+   */
+  @Test
+  public void testGetDefaultPropertyList() {
+    var propLists = wdkModel.getDefaultPropertyLists();
+    for (var plName : propLists.keySet()) {
+      assertNotNull(plName, "property list name should not be null");
+      var values = propLists.get(plName);
+      assertTrue(values.length > 0, "property list should have some values");
     }
-
-    /**
-     * get model name, display name, and version
-     */
-    @org.junit.Test
-    public void testGetModelInfo() {
-        String name = wdkModel.getProjectId();
-        Assert.assertTrue("the model name is not set",
-                name != null && name.length() > 0);
-
-        String displayName = wdkModel.getDisplayName();
-        Assert.assertTrue("the model display name is not set",
-                displayName != null && displayName.length() > 0);
-
-        String version = wdkModel.getVersion();
-        Assert.assertTrue("the model version is not set", version != null
-                && version.length() > 0);
-    }
-
-    /**
-     * test getting default property lists
-     */
-    @org.junit.Test
-    public void testGetDefaultPropertyList() {
-        Map<String, String[]> propLists = wdkModel.getDefaultPropertyLists();
-        // Assert.assertTrue("model doesn't have default property lists",
-        // propLists != null && propLists.size() > 0);
-        for (String plName : propLists.keySet()) {
-            Assert.assertNotNull("property list name should not be null",
-                    plName);
-            String[] values = propLists.get(plName);
-            Assert.assertTrue("property list should have some values",
-                    values.length > 0);
-        }
-    }
+  }
 }
